@@ -1,0 +1,1786 @@
+1. Welcome
+
+Hi. I'm Peter Norvig. I'll be your instructor for CS212, Design of Computer
+Programs.  I'm assuming that you have some background.  You took CS101 or the
+equivalent elsewhere, so you understand the basics of statements, expressions,
+and data types in Python or some other language.  Now, what this class will be
+about is the design process: how to take what you already know and put them
+together in order to solve a problem.  We'll talk about some of the attributes
+of good programs-- correctness, efficiency, generality and so on-- and we'll
+give you a process for thinking about design: how to go from the uncertain
+stage of not knowing what the problem really is and working your way all the
+way through to a good solution.  We'll also give you a set of tools that you
+can use along the way.  I had a lot of fun choosing the examples for this
+class and working them out, and I think you'll have a lot of fun too, and when
+you're done, you'll have a real sense of accomplishment.  So I hope to see you
+in class.
+
+2. About the class
+
+Welcome to CS212. Now, in this class, you're going to be learning by example.
+So I will pose some problems to you and you'll get a chance to create your
+solution. And then I'll show you and discuss my solution. It's important to
+note that there's more then one way to approach a problem, and I don't mean
+that my solution is the only way or the best way. My solutions are there to
+help you learn a style and some techniques for programming. But if you saw
+problems a different way, that's fine. Good for you.  All learning that goes
+on happens inside of your head, not inside of my head. So what's important is
+that you understand the relation between your code and my code that you get
+the right answer by writing out the solution yourself and then you can examine
+my code and maybe pick up some pointers and some techniques that you can use
+later. For example, suppose I ask you to compute the sum of a list of numbers.
+Here's the mathematical formula. And I ask you to write function, which we'll
+call ss, for sum of squares, which takes a list of numbers as input. If you've
+taken CS101, you might write a solution like this, initialize the total=0.
+We'll go through the indices of the numbers and for each one we'll increment
+the total by the square of the number, and then when we're done we'll return
+the total. So that's a perfectly good solution. No problems with that
+whatsoever. If you're able to come up with that you've done your job. But then
+after you come up with your solution I'll show you mine and mine might look
+like this, same function definition. But I might prefer a functional style
+rather a sequencial style where I'm return the sum of the squares of X for
+each X in number.  Now maybe you've never seen something like this before
+maybe you didn't know about the sum function. Maybe you didn't know about this
+type of generator expression in line so this might all be new to you.
+Important point is that this solution of yours is just as valid as mine. So
+what I want you to do is just compare your solution to my solution and see if
+there's anything interesting or new in mine that you might pick up. I don't
+want you to say, hey, that's not fair, Peter, you introduced some new idea
+that I haven't seen before. Don't let that make you upset. Instead, I want you
+to say, well, my solution works, but this is interesting, too, and this is
+something new. I want you to be happy that you learned something new, and
+proud that you came up with a solution that is just as good. But happen to
+just use some different techniques. So remember, learning is not me saying
+something and pouring that into your head. Rather, learning is what goes on
+inside of your head. And it's up to you to make use of what I show you. So
+that you can learn.  This class is an apprenticeship. You learned first by
+observing, then by trying it yourself when the next example comes up and then
+finally now you really got it down when you can take what you've learned and
+teach it to someone else, may be in the forums or may be outside of class. Now
+one final point. The problems in this class are hard, the best learning takes
+place when you're challenged and this class will challenge you. Don't worry if
+you don't get everything on the first try, use the forms to ask questions,
+view the videos more than once if you think that the helps, give yourself time
+to let new ideas sink in, you may have to see them multiple times before it
+makes sense so don't worry about having to review multiple times or ask for
+help. It's hard but it's fun hard, so welcome to the class, good luck. I hope
+you enjoy as much as I do.
+
+3. Outlining the problem.
+
+We're going to talk about how to write a poker program.  This is going to be
+an example of a general process where we start with a vague understanding and
+then we refine our understanding to have a formal specification of a problem,
+then we specify that into something that is amenable to being coded, and then
+the design process we end up with working code.  So we'll follow these steps
+1, 2, 3.  The first thing I want to do in the understanding phase is make an
+inventory of the concepts that we're going to have to deal with, and so let's
+look at what we have.  First we have this notion of hands.  A hand consists of
+5 cards, so here's an individual card, and a card has a rank and a suit.  This
+card, the 5 of diamonds, the rank is 5 and the suit is diamonds.  The main
+program we're trying to specify we'll call poker, and it takes a list of hands
+as input and returns the best hand.  What's the best hand? Well, you can see
+the rules of poker.  There are links to describe where we can look them up,
+and we'll go over them briefly throughout the course of this video.  But we
+can say, for example, that this hand (JH, JS, 2D, 2C, 5D) is called 2 pair.
+You can also say it's jacks over 2s with an extra 5, and the rules specify
+which hands beat which, which is the best ranking for each hand.  So this is
+another concept that we have: the concept of a hand rank which takes a hand
+and maps to something like, in this case, 2 pair and maybe with some more
+details.
+
+And what are the concepts that make up the hand rank?  There are 3.
+One is the concept of cards of the same rank, the same kind, and we'll
+call that n of a kind for 2 of a kind, 3 of a kind, or 4 of a kind.
+So here I have 2 of a kind in two 2s and in two jacks.  
+
+This hand is a straight--5, 6, 7, 8, 9--because it's 5 consecutive ranks.
+Suits don't matter.  
+
+And then the notion of a flush.  This hand (10, 7, 5, 4, 2) is a flush because
+all 5 cards have the same suit, and the ranks don't matter.  So there are a
+few more details about the ranking.  You can look it up on the links, see the
+Wikipedia article on poker hands.  But now I think we're ready.  We know about
+the types of data we have to deal with-- hands, card ranks and suits-- and we
+know about the sort of operations or functions on them.  Now we're ready to
+move into the design phase.
+
+4. Representing hands.
+
+Here's a quiz question.  I want you to tell me which of these possible
+representations for a hand do you think make sense.  Somewhat this is
+subjective.  You may have different opinions.  So tell me all the ones that
+you think are pretty good and not the ones that you think are problematic.  So
+it could be 
+
+1. a list of 2 character strings, 
+
+2. a list of tuples of numbers and strings, 
+
+3. a set that was similar to the list,
+
+4. or just a single big string.
+
+Quiz explanations: 'JS' refers to the card Jack of Spades. Five cards together
+form a hand.
+
+There are two data structures shown here which you may not be familiar with:
+sets and tuples.
+
+If you don't know what a set() is, don't worry! The set() function is used for
+identifying all the unique elements in an iterable object (like a list). 
+
+My answer is I think these first 2 are both quite good.
+Either of them would work just fine.  The set one I think would work
+great for a regular deck of cards with 52 cards, but it might not work
+well if you had wild cards or if you were playing with a big shoe of
+2 decks.  Then you might have 2 of the exact same card, and then a set
+can't represent that.  This string has all the information, and so you
+could deal with that, but at some point you're going to want to break
+this string up into 5 individual cards.  It's just easier to have that
+done right from the start rather than have to do the operation on it.
+
+5. Poker Function.
+
+So now I'm ready to tackle the main function, poker.  And we
+said it takes as input a list of hands, and it's going to return the
+best hand.  So it takes as input the list, returns the best hand.
+I haven't quite figured out how to write the function itself, but at
+least I've got the prototype going.  Now, out of a list of hands we
+want poker to return the highest ranking hand.  Do we know of something
+that will help us do that? Think about it.  Do you know of a built-in
+function in Python that selects the highest ranking item from a list?
+If you do, go ahead and give its name.
+
+    def poker(hands):
+        "Return the best hand: poker([hand, ...]) -> hand"
+        return max ...
+
+And the answer is that the function max fits the bill.  Max is a
+function that takes a list as input and returns the highest ranking one.
+
+6. Understanding `max`
+
+Just to make sure you understand max, tell me what these 2 calls will return.
+
+    max([3, 4, 5, 0])
+
+    max([3, 4, -5, 0], key=abs)
+
+So here I have the 2 calls to max.  And when I hit Run, I see the
+answers are 5 and -5.  So the first call to max, what's the maximum of 3,
+4, 5, and 0?  That's 5. That's the highest number.  The second call to max
+I'm using the keyword argument which says give me the maximum according
+to this function, so give me the maximum of these numbers according to
+the absolute value of those numbers.  And the largest absolute value
+is -5 has the absolute value of 5, so that's the highest, and so that
+gives me the highest value.  And so here we see the result -5 is the
+actual value which has the highest according to the absolute function,
+and so it tells me -5 is the best.
+
+7. Using `max`
+
+So now you understand how the key argument to max works, and
+now let's assume that we've defined a function called hand_rank, which
+takes a hand as input and returns some sort of a rank.  Now, given that,
+how would you write the definition of the function poker to return the
+maximum hand according to the highest ranked?
+
+    def poker(hands):
+        "Return the best hand: poker([hand, ...]) -> hand"
+        return max(hands, key=hand_rank)
+
+    def hand_rank(hand):
+        return None # we will be changing this later.
+
+And the answer is simple.  We take the maximum out of all
+the hands, with the key equal to the hand_rank.  I like this definition
+because it's so simple-- the whole body is just 1 line-- and also because
+it corresponds so closely to the problem specification.  The specification
+says, return the highest ranking hand.  The function definition says,
+return the max of the hands according to the hand_rank, which is basically
+the same thing.  It's easy to see that the implementation matches the
+specification.  Now, if we can just make the hand_rank function clear
+and correct, we'll be in great shape.  But before moving on to defining
+hand_rank, which will be the most complex function that we will write,
+it's a good idea to think about how the functions will be used and to
+write down some test cases.  There are several ways to write tests in
+Python, and here's the simplest way I know.  That is, we define and then
+call a function.  I'm calling the function here test, and test consists of
+some setup of some variables and then some tests that I'm writing with the
+assert statement.  An assert statement in Python, if you haven't seen that
+before, says, I'm asserting that the following thing must be true.  And if
+it's not true, then the program will stop and print an error message.
+If it is true, it'll just move on, and if the tests pass--here I have only
+1 test-- if that test passed, then we'll return tests pass and print that.
+
+8. Testing
+
+What is the one test I have here?  First I've defined 3 hands.
+sf stands for a straight flush, fk stands for 4 of a kind, and fh stands
+for full house.  I've defined those by taking this string, splitting
+the string up on the spaces, and so that will give me a list of 5 cards
+for each of these 3 possible hands.  And then I've asserted that when we
+play a game of poker between these 3 hands that the winning hand is the
+straight flush.  The whole idea of having tests like this is a vital
+part of software development.  It's important that each part of the
+specification gets turned into a piece of code that implements it and a
+test that tests it.  So here we have only 1 test.  This is a test that
+tests part of the implementation of the poker function.  If you don't
+have tests like these, then you don't know when you're done, and you
+won't know if you've done it right, and you won't have confidence that
+any future changes might not be breaking something.  So remember, to
+be a good programmer, you must be a good tester.  Write your test cases
+and test them often.  I want you to add 2 more tests: 1 test that will
+test whether the winner between 4 of a kind and full house is correct--
+and so what should that be? It should be 4 of a kind-- and another test
+that seems a little bit more trivial but testing if we have 2 copies of
+full house playing each other that full house indeed is the winner out
+of those 2.
+
+# -----------
+# User Instructions
+#
+# Modify the test() function to include two new test cases:
+# 1) four of a kind (fk) vs. full house (fh) returns fk.
+# 2) full house (fh) vs. full house (fh) returns fh.
+#
+# Since the program is still incomplete, clicking RUN won't do
+# anything, but clicking SUBMIT will let you know if you
+# have gotten the problem right.
+
+def poker(hands):
+    "Return the best hand: poker([hand,...]) => hand"
+    return max(hands, key=hand_rank)
+
+def test():
+    "Test cases for the functions in poker program"
+    sf = "6C 7C 8C 9C TC".split() # => ['6C', '7C', '8C', '9C', 'TC']
+    fk = "9D 9H 9S 9C 7D".split()
+    fh = "TD TC TH 7C 7D".split()
+    assert poker([sf, fk, fh]) == sf
+
+    # Add 2 new assert statements here. The first
+    # should check that when fk plays fh, fk
+    # is the winner. The second should confirm that
+    # fh playing against fh returns fh.
+    
+    assert poker([fk, fh]) == fk
+    assert poker([fh, fh]) == fh
+    
+    return "tests pass"
+
+And here they are. It's very simple.  We assert that when we
+call poker with 4 of a kind and full house that 4 of a kind wins and when
+we call it with full house and full house that, in fact, full house wins.
+
+9. Extreme values
+
+One important principle of testing is to do extreme values.
+So in some sense, this is kind of an extreme value.  We're testing
+1 hand against itself.  But there are other types of extreme values.
+What if the list of hands that's passed to poker has only 1 item or 0
+items or 100 items?  Well, poker is not usually played as solitaire, so
+there wouldn't be much point in having 1, but nothing in the specification
+rules it out.  So add a test that checks when 1 hand plays that that 1
+hand is the winner.  What about 0 hands?  The specification doesn't say,
+but it does say that the function poker is supposed to return a hand.
+And if we pass it a list with nothing in it, then there's no hand to
+return.  So I think the best thing to do is to make it clear that when
+we're passed 0 hands that that's going to be an error.  If you wanted
+to, you could return the value none.  That might be a reasonable thing
+to return.  But I think the best thing to do is just to say that that's
+an error.  We also want to have extreme values.  What if 100 people
+are playing poker at once, if hands is a list of 100 different hands?
+We want to allow that too.  It would be unusual, and we'd need a big
+deck of cards with 500 cards, but it could be done.  So I want you to
+write tests to check for 1 player and to check for 100 players.
+
+    # -----------
+    # User Instructions
+    # 
+    # Modify the test() function to include two new test cases:
+    # 1) A single hand.
+    # 2) 100 hands.
+    #
+    # Since the program is still incomplete, clicking RUN won't do 
+    # anything, but clicking SUBMIT will let you know if you
+    # have gotten the problem right. 
+
+    def poker(hands):
+        "Return the best hand: poker([hand,...]) => hand"
+        return max(hands, key=hand_rank)
+
+    def test():
+        "Test cases for the functions in poker program"
+        sf = "6C 7C 8C 9C TC".split() 
+        fk = "9D 9H 9S 9C 7D".split() 
+        fh = "TD TC TH 7C 7D".split()
+        assert poker([sf, fk, fh]) == sf
+        assert poker([fk, fh]) == fk
+        assert poker([fh, fh]) == fh
+        # Add 2 new assert statements here. The first 
+        # should assert that when poker is called with a
+        # single hand, it returns that hand. The second 
+        # should check for the case of 100 hands.
+        assert poker([sf]) == sf
+        assert poker([sf] + 99*[fh]) == sf
+        return "tests pass"
+
+So here we have a test for 1 player, and I've chosen the straight
+flush.  I could have chosen anything.  I say when the straight flush
+plays solitaire, it wins.  Here I've chosen a list with 1 straight flush
+and 99 full houses, and I say when 99 full houses play a straight flush,
+the straight flush wins.  You may not know this notation, these types of
+operators in Python.  We can take a list and multiply it by a number,
+and that just says repeat that list that many times.  So 99 times a 1
+element list is a 99 element list all with the same element, and then we
+can add 2 lists together, and that just says concatenate them.  So this
+1 element joins in with these 99 elements to make a 100 element list.
+This is far from a complete test suite.  We would really want much more
+complete coverage of tests.  Poker, we have 9 different rankings of
+the hands.  We would want to have at least 1 for each of those, so there
+would have to be at least 9 tests and probably many more tests than that
+before we had real confidence that we got it right, but at least we got
+a start and we have some simple sanity tests within our test suite.
+
+10. Hand rank attempt
+
+I think it's a good time to return to hand_rank, the most
+complicated function we'll have to deal with.  We know hand_rank takes
+a hand as input, but what does it return?  We want it to return a value
+indicating the ranking of a hand, but we're not quite sure what that
+value should be.  It has to be something that's comparable by max, so,
+well, why not a number?  There are 9 different types of hands that we
+know about, from straight flush at the top to high card at the bottom,
+and we can number them from, say, 0 to 8, with 8 being the highest for
+the straight flush.  So here's a sketch of a solution.  We know it's
+going to be important to look at ranks, so let's get them first.  We can
+extract the ranks with our card_ranks function, and then we can say first
+we want to check and see if we have a straight flush.  So if the ranks
+form a straight and the cards form a flush, then we can return 8, the
+highest value.  Otherwise what's next?  Four of a kind.  And the only
+thing we need in kind is the rank, so I'm going to just pass that in.
+If the ranks form 4 of a kind, then return 7.  And we could go on from
+there.  I go through the cases 1 by 1.  We have straight flush, we have
+4 of a kind, we would next go to full house and then flush and so on.
+The question is, would this work?  If we continued to flesh this out
+and we defined the 9 different cases to return the numbers from 0 to 8,
+would that give us a definition of hand_rank that's a working program?
+And I want you to tell me yes, it would work fine in all cases; no,
+it would signal an error condition and crash the program; no, it would
+get some inputs wrong and some of them right; or no, it would get all
+the inputs wrong.  Which do you think is correct?
+
+And the answer is that it would, in fact, get some of the
+cases right.  In fact, it would get many cases right.  It would get
+all the test cases that we've seen so far correct because in each one
+of those we can distinguish between 2 hands just by a single number.
+We can distinguish that a full house is better than a straight just
+because looking at the numbers that get returned.  For a full house we
+would return a 6, and for a straight we would return a 4, and we know
+6 is greater than 4, and so max would do its job and would give us the
+right answer.  But it wouldn't give us the right answer in all cases.
+So for example, what happens if somebody had a pair of 10s and 3 other
+cards and another player had a pair of 9s and 3 other cards?  With what
+we had written so far, pair turns out to be ranking number 1, and so
+the hand rank for this would be equal to 1 and the hand rank for this
+would be equal to 1, and those would be the same and it wouldn't be
+able to choose between them.  But we know that we want the pair of 10s
+to outrank the pair of 9s, so we've got to come up with some way to make
+that comparison so that we're able to distinguish between 2 rankings that
+are the same in terms of what they're called.  They're both called pairs,
+but they differ in what they are: a pair of 10s versus a pair of 9s.
+
+It looks like that means that we're going to have to use
+something more complicated than just this ranking from 0 to 8.  I'm going
+to propose a couple possibilities.  One possibility would be to continue
+to return integers but to use bigger ones.  So let's take an example of
+what we want to compare.  Let's say we have 2 hands that are 4 of a kind.
+One has four 9s and a 5, and the other one has four 3s and a 2.  We want
+this hand to rank higher.  Under the old formulation, they would both
+be ranked as a 7 because 7 is the rank for 4 of a kind.  So if we want
+to change that to use a different type of result, we could use integers
+and we could say, let's say, 70905 and 70302, so the 9 and the 5 to
+represent that this is 4 of a kind of 9s with a 5 left over and the 3
+and the 2 to say it's 4 of a kind of 3s with a 2 left over.  We could
+use real numbers.  We could say 7.0905 or 7.0302.  Another possibility
+is we could use tuples.  We could use 7, 9, 5 versus 7, 3, 2.  A tuple
+is just like a list, except it can't be modified and it has a slightly
+different set of operations associated with it.  But basically, it just
+means a grouping of 3 values in this case.  What I want you to tell me
+is out of these 3 possibilities, which one of them would work at all and
+which one of them seems best in terms of being most convenient and easy
+to work with within our program?
+
+And the answer is that all 3 of them would work just fine.
+We could make it work in all cases.  It makes the necessary distinction.
+And in each of these cases, the entries in this column are greater than
+the entries in this column, and so max could do the job.  But it seems
+to me that the case with tuples is the most convenient.  Here with these
+integers or reals we'd have to be doing very complicated arithmetic
+to add things up and then break them apart to make sure we got the
+right answer.  But with the tuples it's simple.  We just use a comma
+operator.  We say start with a 7, add in what we have 4 of a kind in,
+add in what we have the remaining 1 card of, and that gives you the
+3 values, and we don't have to deal with any complicated arithmetic.
+Now, if you aren't familiar with tuples, you might want a little bit of
+practice to understand how they work.  We said that 7, 9, 5 is greater
+than 7, 3, 2.  So in other words, this expression is a true expression
+in Python.  And the way the evaluation works is you first look at the
+first element.  If one of them is greater, then that element is greater.
+If they're the same, then you go on to the second element.  So in this
+case, 7 is equal to 7 so we move on.  9 is greater than 3, and so that
+means this guy is greater than that guy.  You may have seen a similar
+type of thing in ordering between strings.  So we can have the string
+'hello' and compare that to the string 'help', and we do it in exactly
+the same way that we compare tuples.  We go left to right.  h compares to
+h. They're the same, so we move on to the next character.  e compares to
+e. They're the same, so we move on to the next.  l is equal to l. Move on.
+And here we have an l and a p, and p comes later in the alphabet than l,
+so help would be greater than hello, or hello would be less than help.
+The same type of idea, and this is known as lexigraphic ordering.
+It's so called because lex meaning words.  This is the way that words
+are ordered.  But we use the same name when we're comparing strings or
+when we're comparing lists of numbers or lists of any other type of value.
+
+12. Wild West Poker
+
+We can understand the ranking that we're going to assign to this hand (JC,
+10C, 9C, 8C, 7C, by
+the way a Poker player would call out his hand, when asked to reveal it.
+So our player declares "Straight Flush, Jack high!"  That's all you have
+to know about the hand.  A straight flush, the highest ranking, and then
+the tie-breaker.  All we have to know is that the Jack is the high card.
+So the number 8 stands for straight flush, and the number 11 stands
+for Jack, and that completely describes the hand.  Here's another hand - AS,
+AH, AD, AC, QH.
+Let's see what our player would declare for this hand.  "Four Aces, and
+a Queen kicker!"  So, four Aces is the major rank, which is a 7.  Ace is
+card rank number 14, and the Queen is card rank number 12.  So that's
+the complete description of the hand: (7, 14, 12). 
+
+Let's do another
+one - 8S, 8H, 8D, KS, KC. What's this hand?  "Full house, eights over Kings."  So even though
+a King is higher than the 8, The 8 is what counts more importantly,
+because there's three of them.  So a full house is major ranking number
+6, then the 8 because there's three of them, then the King, which is 13.
+That's the remaining card. (6, 8, 13) - that three element tuple completely describes
+this hand.  
+
+Here's another hand - 10D, 8D, 7D, 5D, 3D. How do we declare this one?  Our player
+has called "Flush 10, 8," describing the two highest cards in his hand,
+because that's usually enough to distinguish the the hand from all other
+flushes that might be out there.  But in actuality we might need all the
+hands to break the ties.  Now a flush is ranked number 5, and in order
+to break the ties, we look at all the cards in the hand.  Highest first,
+and working all the way down - (5, [10, 8, 7, 5, 3]).  So something in there should be able to
+break the tie.  Although, it certainly is possible, although unlikely,
+that somebody else has those five exact cards in another suit, and it
+actually would be a tie.  There would be no tie-breaker.  
+
+Let's look at
+this hand - JC, 10S, 9D, 8C, 7C.  Our player describes "Straight, Jack high."  That's all he
+needs to say, because if it's a straight, if you know Jack is the high
+card, then you know the other cards have to be "10, 9, 8, 7."  So we
+only need two numbers to describe this.  4 meaning "straight," and then
+an 11 meaning "Jack" - (4, 11).  
+
+Next hand, "Three sevens!" - 7H, 7D, 7C, 5C, 2C. Usually that's enough
+to disambiguate a hand, but if we really need to break the ties, then
+we would look at the next highest ranking card.  Next is the 5, and then
+finally the 2.  So to describe the hand, we have the rank number, which
+is 3.  Then the 7's, then the complete list of the five cards - (3, 7, [7, 7,
+7, 5, 2]).  
+
+Next hand
+"Two pairs, Jacks and Three's!" - JD, JC, 3S, 3H, KH. That describes most of the hand, but
+we also need to compare all the cards, including the two pairs, but it's
+the highest ranking pair, first.  So first, the 2, meaning "two pairs."
+Then, the 11 for the Jack (the highest of the two pairs).  Then, the 3 for
+the three's.  And now we need the final card.  I happen to have all of the
+ranks standing around, so I use that as a stand-in for the final card.
+Either way, that fifth card can completely disambiguate the hands, if
+you happen to tie on the Jack's and the 3's - (2, 11, 3, [13, 11, 11, 3, 3]). 
+
+Here our player declares
+"Pair of two's, Jack high." - 2H, 2S, JD, 6H, 3C.  That partially describes the hand.  Notice we
+lost the exclamation point.  He's not so excited about his hand this time.
+So a pair of two's, that's down to ranking number "1."  Then the pair of
+two's is the first tie-breaker.  And then all of the cards in the hand - (1,
+2, [11, 6, 3, 2, 2]).
+
+Our final hand, and our poor player declares "I got nothing" - 7C, 5C, 4C, 3C,
+2D. Now he's
+REALLY crying.  But sometimes nobody else has anything either, and then
+we still have to decide among the players who have nothing, who wins.
+And we just go in order of the ranks of the cards.  So "nothing" is 0.
+And then the ranks of the cards from highest to lowest - (0, [7, 5, 4, 3, 2]).
+
+13. Back to hand rank.
+
+Now let's go back to hand_rank.  We still have the same
+specification that the input is a hand and the output is a value
+indicating the ranking of a hand.  But instead of having the value be
+an integer like it was before, now the value is going to be a tuple
+where the first element of the tuple is still going to be the single
+value representing the type of ranking-- 8 for a straight flush, for
+example-- but then the next element of the tuple serves to break ties.
+If 8 is the highest compared to any other hand, then that's the winner.
+But if there are multiple hands that have an 8, they all tie and we have
+to go on to the first tiebreaker.  And what should the tiebreaker be?
+Well, in this case, we can just look at the high rank.  So we can look
+at the max out of all the ranks breaks the ties.  And the idea there is
+if we had a hand that, say, had ranks 2 3 4 5 6, then the only thing we
+care about is the 6.  We can completely specify this hand because we
+know it's a straight.  So if 6 was the high card, then that tells us
+everything we need to know about the straight and how it compares to
+any other straight.  So for that kind of hand, we'd get the value (8,
+6) and a hand that was, say, 6 7 8 9 T would get the value (8, 10),
+and we know that this hand would win because (8, 10) is bigger than
+(8, 6).  So this gives us a way to break ties between straight flushes.
+
+We can do the same type of thing for all the other rankings.  So rank
+7 is 4 of a kind. What do we want to put in there to break the tie?
+The first tiebreaker is the thing that you have 4 of a kind of.  So you
+say, I've got 4 of a kind, 4 kings, and we can just say, what do you
+have 4 of a kind of?  But now I have to firm up the definition of kind.
+We weren't quite clear on what it returns.  We can make it return a value
+which is the actual rank.  So if I have four 7s, it should return 7.
+If I have four 10s, it should return 10, and that will be the tiebreaker.
+And then normally, if we're playing a regular game, there would only be 4
+of a kind in a deck.  So if you had four 10s, nobody else could tie you
+because there wouldn't be another four 10s.  But we want to allow for
+the possibility of playing a game where there's 2 decks.  So we could
+go to a tiebreaker, and then the tiebreaker would be the remaining
+card in your hand, which is the card that you have 1 of a kind of.
+So for example, say if you had a hand that had four 9s and a 3, then
+our value would be 7, meaning 4 of a kind, 9, meaning you have four 9s,
+and then 3, meaning that's the final tiebreaker.  
+
+There's something a
+little bit tricky here that I want to go over and make sure we get right.
+Here I'm kind of overloading the idea of the function kind.  I'm using
+it to return a value--returns 9 when you have four 9s-- but I'm also
+using it as a Boolean test, saying if you have 4 of a kind at all, then
+do this.  And so I want to arrange kind to return a false value when it
+doesn't have 4 of a kind and to return a true value, which is a number,
+when you do have 4 of a kind.  And you can do that in Python.  In other
+languages, you would have to decide one or another.  In a language like
+Java, you couldn't have something that returns either a Boolean value
+or a number, so you'd have to have another way of dealing with that.
+But in Python you can do that.  You can have kind return a number when
+it's needed and return a false value when it's needed.  One thing you
+have to worry about is it turns out that in Python the value 0 is, in fact,
+counted as false.  So if I was saying I'm going to return either a false
+value or return a number and if 0 was one of those possible numbers,
+then I could be in trouble.  But in this case, 0 is not a possible
+number because the ranks go from 2 to 14, so I'm okay.  And we'll see
+more about that when we define the kind function.
+
+14. Testing hand rank.
+
+Before we finish up the hand_rank function, I'm going to go
+back to the tests and add some tests for it.  So let's take our 3 sample
+hands here and write tests for each of them-- write what the hand_rank
+function should return for each of these 3 hands and write a test that
+asserts that value.
+
+    # -----------
+    # User Instructions
+    #
+    # Modify the test() function to include three new test cases.
+    # These should assert that hand_rank gives the appropriate
+    # output for the given straight flush, four of a kind, and
+    # full house.
+    #
+    # For example, calling hand_rank on sf should output (8, 10)
+    #
+    # Since the program is still incomplete, clicking RUN won't do
+    # anything, but clicking SUBMIT will let you know if you
+    # have gotten the problem right.
+
+    def poker(hands):
+        "Return the best hand: poker([hand,...]) => hand"
+        return max(hands, key=hand_rank)
+
+    def test():
+        "Test cases for the functions in poker program"
+        sf = "6C 7C 8C 9C TC".split() # Straight Flush
+        fk = "9D 9H 9S 9C 7D".split() # Four of a Kind
+        fh = "TD TC TH 7C 7D".split() # Full House
+        assert poker([sf, fk, fh]) == sf
+        assert poker([fk, fh]) == fk
+        assert poker([fh, fh]) == fh
+        assert poker([sf]) == sf
+        assert poker([sf] + 99*[fh]) == sf
+        #
+        # add 3 new assert statements here.
+        assert hand_rank(sf) == (8, 10)
+        assert hand_rank(fk) == (7, 9, 7)
+        assert hand_rank(fh) == (6, 10, 7)
+    print test()
+
+Here I've added the tests.  For a straight flush the value is 8,
+the value for a straight flush, followed by a 10, because 10 is the high
+card in this particular straight flush.  For 4 of a kind the value is 7,
+indicating 4 of a kind, then a 9, indicating that we had four 9s, and
+then another 7, indicating that the remaining card was the 7 of diamonds.
+And for a full house the value is 6, 6 meaning full house, followed by
+a 10, meaning that we had three 10s, and a 7, meaning that we had two 7s.
+
+15. Writing hand rank
+
+So now I'd like you to fill in the rest of the definition
+for hand_rank.  We have the values for 8 and 7.  Go ahead and fill in
+the remaining tests and return tuples for the values from 6 down to 0.
+That will be the hardest assignment you've had yet.  It might take you
+a little while to work on it.  Make sure you use the test cases, run
+the tests to make sure you have your hand_rank function working properly.
+
+    # -----------
+    # User Instructions
+    # 
+    # Modify the hand_rank function so that it returns the
+    # correct output for the remaining hand types, which are:
+    # full house, flush, straight, three of a kind, two pair,
+    # pair, and high card hands. 
+    # 
+    # Do this by completing each return statement below.
+    #
+    # You may assume the following behavior of each function:
+    #
+    # straight(ranks): returns True if the hand is a straight.
+    # flush(hand):     returns True if the hand is a flush.
+    # kind(n, ranks):  returns the first rank that the hand has
+    #                  exactly n of. For A hand with 4 sevens 
+    #                  this function would return 7.
+    # two_pair(ranks): if there is a two pair, this function 
+    #                  returns their corresponding ranks as a 
+    #                  tuple. For example, a hand with 2 twos
+    #                  and 2 fours would cause this function
+    #                  to return (4, 2).
+    # card_ranks(hand) returns an ORDERED tuple of the ranks 
+    #                  in a hand (where the order goes from
+    #                  highest to lowest rank). 
+    #
+    # Since we are assuming that some functions are already
+    # written, this code will not RUN. Clicking SUBMIT will 
+    # tell you if you are correct.
+
+    def poker(hands):
+        "Return the best hand: poker([hand,...]) => hand"
+        return max(hands, key=hand_rank)
+
+    def hand_rank(hand):
+        ranks = card_ranks(hand)
+        if straight(ranks) and flush(hand):            # straight flush
+            return (8, max(ranks))
+        elif kind(4, ranks):                           # 4 of a kind
+            return (7, kind(4, ranks), kind(1, ranks))
+        elif kind(3, ranks) and kind(2, ranks):        # full house
+            return (6, kind(3, ranks), kind(2, ranks))# your code here
+        elif flush(hand):                              # flush
+            return (5, ranks) # your code here
+        elif straight(ranks):                          # straight
+            return (4, ranks)# your code here
+        elif kind(3, ranks):                           # 3 of a kind
+            return (3, ranks)# your code here
+        elif two_pair(ranks):                          # 2 pair
+            return (2, kind(2, ranks), kind(2, ranks), kind(1, ranks))# your code here
+        elif kind(2, ranks):                           # kind
+            return (1, kind(2, ranks), ranks )# your code here
+        else:                                          # high card
+            return (0, ranks)# your code here
+
+    def test():
+        "Test cases for the functions in poker program"
+        sf = "6C 7C 8C 9C TC".split() # Straight Flush
+        fk = "9D 9H 9S 9C 7D".split() # Four of a Kind
+        fh = "TD TC TH 7C 7D".split() # Full House
+        assert poker([sf, fk, fh]) == sf
+        assert poker([fk, fh]) == fk
+        assert poker([fh, fh]) == fh
+        assert poker([sf]) == sf
+        assert poker([sf] + 99*[fh]) == sf
+        assert hand_rank(sf) == (8, 10)
+        assert hand_rank(fk) == (7, 9, 7)
+        assert hand_rank(fh) == (6, 10, 7)
+        return 'tests pass'
+
+
+So here's my solution. You can look at the code.  I think it's
+pretty self-explanatory, so I won't go through all the details.  I'll just
+mention a few things.  First of all, notice that it's returning a tuple
+consisting of the major rank and then the tiebreakers, and it just goes
+through them all in order-- 8, 7, 6, 5, 4, 3, 2, 1, 0.  And then the
+interesting part is, 1, how do you determine what major rank it is?
+So we test to see if it's a straight flush. Then it's number 8. That's
+a straight flush.  Another example: If you have 3 of a kind and you
+also have 2 of a kind, then that's a full house, which is number 6.
+And then what are the tiebreakers?  They're the important cards first
+that are part of the thing.  So with a full house the most important
+tiebreaker is the 3 of a kind, and then the next most important is the
+2 of a kind, and we pick out what each one is, put them in that return
+value to break the ties.  And a final thing I'll note is that card_ranks
+is defined to return the ranks in sorted order.  so that, for example,
+when you have nothing, just returning the ranks, that means that the
+highest card is first and that's going to be the first tiebreaker, the
+next highest card is second and that's the next tiebreaker and so on.
+And that's all you need to know.
+
+16. Testing card rank
+
+So let's go through the helper functions 1 by 1, but first
+let's go back to tests and add some tests.  Let's work on the card_ranks
+function first.  And what I want you to do is add tests for each of the
+3 cards that we've specified here to say what the card ranks should be.
+
+    # -----------
+    # User Instructions
+    # 
+    # Modify the test() function to include three new test cases.
+    # These should assert that card_ranks gives the appropriate
+    # output for the given straight flush, four of a kind, and
+    # full house.
+    #
+    # For example, calling card_ranks on sf should output  
+    # [10, 9, 8, 7, 6]
+    #
+    # Since the program is still incomplete, clicking RUN won't do 
+    # anything, but clicking SUBMIT will let you know if you
+    # have gotten the problem right. 
+
+    def test():
+        "Test cases for the functions in poker program"
+        sf = "6C 7C 8C 9C TC".split() # Straight Flush
+        fk = "9D 9H 9S 9C 7D".split() # Four of a Kind
+        fh = "TD TC TH 7C 7D".split() # Full House
+        
+        
+        assert poker([sf, fk, fh]) == sf
+        assert poker([fk, fh]) == fk
+        assert poker([fh, fh]) == fh
+        assert poker([sf]) == sf
+        assert poker([sf] + 99*[fh]) == sf
+        assert hand_rank(sf) == (8, 10)
+        assert hand_rank(fk) == (7, 9, 7)
+        assert hand_rank(fh) == (6, 10, 7)
+
+        assert card_ranks(sf) == [10, 9, 8, 7, 6]
+        assert card_ranks(fk) == [9, 9, 9, 9, 7]
+        assert card_ranks(fh) == [10, 10, 10, 7, 7]
+
+
+        return 'tests pass'
+
+And here's the answer.  For the straight flush the values
+of the card_ranks is 10, 9, 8, 7, 6.  Here was the straight flush,
+and notice what we've done is we put the order with the highest cards
+first because we're going to use these ranks for tiebreakers, and in
+tiebreakers it's the highest first that counts.  So we always want the
+result from card_ranks to be sorted highest first.  For 4 of a kind, four
+9s and a 7. That looks right. The 9s come before the 7.  For full house,
+three 10s and two 7s. 10s come before the 7 and again, that looks right.
+
+17. Fixing card rank
+
+Here's a definition of card_ranks that's almost right.  We say
+what card_ranks does. It returns a list of the ranks sorted with higher
+first.  We pulled the ranks out of the cards, so here we're iterating over
+the cards and we're having 2 values: the rank and the suit.  And what this
+is doing is saying each card is a 2 value element, and we can break down
+those 2 elements into the first and second, the one that has rank 0 and
+rank 1 or index 0 and index 1.  And so we're saying a card consists of
+a rank and a suit, and we're only going to collect up the ranks and make
+that into a list.  So ranks is the list of ranks, then we sorted it and
+we said we want to reverse sort so that the higher comes first rather
+than the lower, and then we return the ranks.  This is almost right,
+but the problem is if we just pull out the rank of each card as is, then
+the rank T for 10 is the highest because T comes alphabetically after A
+and Q and all the other cards. But we don't want that.  Instead we want
+10 to map to the number 10 and J to the number 11 and so on.  So we're
+going to have to come up with a way of fixing that, taking these letters
+that we pulled out of the cards and mapping them into an integer in
+the correct way.  See if you can fix this definition of card_ranks to
+correctly return a list of numbers, not a list of characters.
+
+    # -----------
+    # User Instructions
+    # 
+    # Modify the card_ranks() function so that cards with
+    # rank of ten, jack, queen, king, or ace (T, J, Q, K, A)
+    # are handled correctly. Do this by mapping 'T' to 10, 
+    # 'J' to 11, etc...
+
+    def card_ranks(cards):
+        "Return a list of the ranks, sorted with higher first."
+
+        # Norvig did it so
+        values = {'2':2, '3':3, '4':4, '5':5, '6':6, '7':7, '8':8, '9':9,
+                    'T':10, 'J':11, 'Q':12, 'K':13, 'A':14 }
+        ranks = [values[r] for r,s in cards]
+        ranks.sort(reverse=True)
+        return ranks
+
+    print card_ranks(['AC', '3D', '4S', 'KH']) #should output [14, 13, 4, 3]
+
+Here's one way to do it.  What I've done is I only changed this
+line, and instead of just returning r for r, s in hand, I've taken r and
+used it as a lookup into this value.  So I'm saying when r is the letter
+2, I look up into this string and say what index is 2 in there and where
+is it?  You start counting at 0, so it's 0, 1, 2.  So the character 2
+would map to the number 2, the character T would map to the number 10,
+J to 11, Q to 12, K to 13, and A to 14.  So that gives me a correct
+mapping from characters to index numbers, and they'll all come out
+right. I could have done it other ways.  I could have had a dictionary
+lookup, I could have had a long set of if-then-else statements, but this
+seemed the simplest way to do it.
+
+18. Stright and flash
+
+Okay, now let's go on to the straight and flush functions.
+The first thing to do, of course, is to add more tests.  In this case, I
+won't make you write them. I'm going to write them myself.  I've written
+4 tests here.  I should be much more exhaustive than this, but I wanted
+to have 1 true and 1 false for each of the 2 cases.  Remember a straight
+takes as input a list of ranks, not a hand or list of cards.  And so 9, 8,
+7, 6, 5, yes, that is a straight.  9, 8, 8, 6, 5. That's got a pair; it's
+not a straight, and so that should be false.  As for flushes, the straight
+flush which had all clubs, that should be true.  That should be a flush.
+And the 4 of a kind which had all 4 different suits should not be a flush.
+I've written the tests. Now it's your turn to write the code.  I want you
+to write straight, which should return True if the ordered ranks form
+a 5-card straight and False otherwise, and flush, which should return
+True if all the cards in the hand have the same suit and False otherwise.
+
+    # -----------
+    # User Instructions
+    # 
+    # Define two functions, straight(ranks) and flush(hand).
+    # Keep in mind that ranks will be ordered from largest
+    # to smallest.
+
+    def straight(ranks):
+        "Return True if the ordered ranks form a 5-card straight."
+        # Norvig: 
+        # return (max(ranks)-min(ranks) == 4 and len(set(ranks)) == 5
+        return list(range(ranks[0], ranks[0]-5, -1)) == ranks
+        
+    def flush(hand):
+        "Return True if all the cards have the same suit."
+        s = set(s for r, s in hand)
+        return len(s) == 1
+        
+    def test():
+        "Test cases for the functions in poker program."
+        sf = "6C 7C 8C 9C TC".split()
+        fk = "9D 9H 9S 9C 7D".split()
+        fh = "TD TC TH 7C 7D".split()
+        assert straight([9, 8, 7, 6, 5]) == True
+        assert straight([9, 8, 8, 6, 5]) == False
+        assert flush(sf) == True
+        assert flush(fk) == False
+        return 'tests pass'
+
+    print test()
+
+And here is 1 answer.  For straight what I did was I said it's
+a straight if the difference between the max and the minimum is 4-- say
+2, 3, 4, 5, 6; 6 minus 2 is 4-- and also if all the cards are different.
+So make a set out of the ranks, and if the length of that set is 5, that
+means if there's 5 different ranks that have a max versus minimum of 4,
+then it's a straight.  For flush what I did is I extracted out the suits,
+iterated over the hand with the r and s being the 2 characters within
+each card, collected up all the s into this list, and then I asked,
+is the length of that set equal to 1?
+
+19 Kind function
+
+Okay, so we're going great and we're almost done.  We just
+need to implement kind and 2 pair.  So let's write some tests first,
+as usual.  Again, I'll do the tests for you.  So what I've added here
+is one more card or one more hand to deal with-- 2 pairs, a pair of 5s
+and 9s with a 6 left over-- and then I pulled out the ranks of 4 of a
+kind ranks and 2 pair ranks by calling card_ranks, and then I made these
+assertions.  So is there a 4 of a kind in the 4 of a kind ranks? Yes,
+there is.  And in fact, it's a 9, those four 9s.  Is there a 3 of a kind
+there? No, there's not.  We're asking for exactly 3, not at least 3,
+and so there's 4 but there's not 3.  Is there a 2 of a kind there? No.
+Is there 1 of a kind? Yes, there is. There's four 9s and there's one 7.
+So 1 of a kind in 4 of a kind ranks is yes, there is. There's a 7.
+And then in terms of 2 pair, does the 4 of a kind have 2 pair?  No,
+it doesn't, so we return None.  And does the 2 pair have 2 pair? Yes,
+it does, a 9 and a 5.  I'm going to ask you to write the kind function,
+which takes the n of a kind you're looking for, the list of ranks, and
+it returns the rank that that hand has exactly n of if there is one and
+returns None otherwise.  And it should go through the ranks in left to
+right order and find the first one that corresponds to n of a kind.
+
+    # -----------
+    # User Instructions
+    # 
+    # Define a function, kind(n, ranks).
+
+    def kind(n, ranks):
+        """Return the first rank that this hand has exactly n of.
+        Return None if there is no n-of-a-kind in the hand."""
+        h = {} 
+        for c in ranks:
+            h[c] = h.get(c, 0) + 1
+        g = {}
+        for k in h.keys():
+            g[h[k]] = k
+        if n in g:
+            return g[n]
+
+    # Norvig did much simpler
+    # for r in ranks:
+    #     if ranks.count(r) == n: return n
+        
+    def test():
+        "Test cases for the functions in poker program."
+        sf = "6C 7C 8C 9C TC".split() # Straight Flush
+        fk = "9D 9H 9S 9C 7D".split() # Four of a Kind
+        fh = "TD TC TH 7C 7D".split() # Full House
+        tp = "5S 5D 9H 9C 6S".split() # Two pairs
+        fkranks = card_ranks(fk)
+        tpranks = card_ranks(tp)
+        assert kind(4, fkranks) == 9
+        assert kind(3, fkranks) == None
+        assert kind(2, fkranks) == None
+        assert kind(1, fkranks) == 7
+        return 'tests pass'
+        
+    def card_ranks(hand):
+        "Return a list of the ranks, sorted with higher first."
+        ranks = ['--23456789TJQKA'.index(r) for r, s in hand]
+        ranks.sort(reverse = True)
+        return ranks
+
+    print test()
+
+
+And there are many ways to do it. Here's how I chose to do it.  I go
+through the ranks, and then for each r in the ranks, I check to see
+if the ranks has a count of exactly n of those, so count is one of the
+methods that exists on lists.  We can ask a list to count how many times
+it has an element.  If that's equal to n, then return that element.
+And if not, then just return none.
+
+20 Two pairs function
+
+Now I want you to define the function two pair, which takes ranks as
+input, and if there are two pair within the ranks, then it should return
+a 2-tuple of the highest and lowest rank, and if there aren't 2 pairs,
+it should return none.
+
+    # -----------
+    # User Instructions
+    #
+    # Define a function, two_pair(ranks).
+
+    def two_pair(ranks):
+        """If there are two pair, return the two ranks as a
+        tuple: (highest, lowest); otherwise return None."""
+        # Your code here.
+        rst = set()
+        for c in ranks:
+            if ranks.count(c) == 2:
+                rst.add(c)
+        if len(rst) == 2:
+            return (max(rst), min(rst))
+
+    def kind(n, ranks):
+        """Return the first rank that this hand has exactly n of.
+        Return None if there is no n-of-a-kind in the hand."""
+        for r in ranks:
+            if ranks.count(r) == n: return r
+        return None
+
+    def test():
+        "Test cases for the functions in poker program."
+        sf = "6C 7C 8C 9C TC".split() # Straight Flush
+        fk = "9D 9H 9S 9C 7D".split() # Four of a Kind
+        fh = "TD TC TH 7C 7D".split() # Full House
+        tp = "TD 9H TH 7C 3S".split() # Two Pair
+        fkranks = card_ranks(fk)
+        tpranks = card_ranks(tp)
+        assert kind(4, fkranks) == 9
+        assert kind(3, fkranks) == None
+        assert kind(2, fkranks) == None
+        assert kind(1, fkranks) == 7
+        return 'tests pass'
+
+    def card_ranks(hand):
+        "Return a list of the ranks, sorted with higher first."
+        ranks = ['--23456789TJQKA'.index(r) for r, s in hand]
+        ranks.sort(reverse = True)
+        return ranks
+
+    print test()
+
+    # Norvig
+    # pair = kind(2, ranks)
+    # lowpair = kind(2, list(reversed(ranks)))
+    # if pair and lowpair != pair:
+    #     return (pair, lowerpair)
+    # else:
+    #     return None
+
+So here's how I chose to do it.  I first picked out the first pair,
+and if there are 2 pairs, that should be the highest, because remember,
+the ranks are ordered from highest to lowest, so if I'm going through the
+ranks from left to right, I should hit the highest one first.  And then
+to find if there's a low pair, what I've done is reverse the ranks
+and then look through those, so now I'm going from lowest to highest,
+and I should find the lowest pair first.  Now if I found a pair, and I
+found a low pair, which is not equal to the pair, then I want to return
+the two of them.  Otherwise I just return none.  So congratulations.
+We've gone through the whole program.  We've come up with a solution,
+and now when we hit the Run button, it prints out "tests pass," so we've
+done everything that we promised to do, and it works okay.  But I'm
+still not confident because I know we've done some tests, but we haven't
+done exhaustive tests yet, so I feel pretty good about it.  You should
+feel good about what we've done together.  Congratulations on that.
+But don't feel like we're done yet.  We've still got to come up with
+more tests to prove that we've got it right in every case, and in fact,
+I want to share with you a test that somebody pointed out to me that I
+hadn't thought of at all.
+
+21. Making changes
+
+So I've added 1 more test, but I've added a bunch of new hands, and since
+it seemed to be getting complicated, I documented what each hand is.
+And the key point here is one particular hand or one particular set of
+rankings which is a straight that goes from ace through 5.  An ace, 2,
+3, 4, 5.  It's almost a straight flush, but we just missed, but that's
+not important.  What's important is that it's a straight and that the
+ace is low, and this is the only hand or the only set of rankings in
+which the ace counts as a low card rather than a high card, and in our
+program, we'll mess that up in 2 ways.  One is we won't even recognize
+this as a straight because we're counting the ace as being a 14, not as
+being a 1, so we won't know that it's a straight, and secondly, even if
+we did, we'd want to count the 5 as being the high card in this hand,
+not the ace.  We've got to come up with something to deal with that,
+so let's see, what are the possibilities?  Well, perhaps we want to
+modify the function straight.  We also want to return the correct hand
+rank for this hand, so maybe we have to modify the function hand rank.
+And third, the card ranks probably have to change as well.  We want the
+card ranks for this hand to have a 1 for the straight rather than a 14.
+And what do you think about the prospects of making 3 changes?  Would you
+say that that's okay because the changes that you envision making seem
+to be small ones to the 3 functions?  Would you say it's okay regardless
+of the size of the change?  That's just the way it is. We have to put
+up with it.  Or would you say we should be able to do better?  And we
+should look for a solution that doesn't require changing all 3 functions.
+What would you vote for?
+
+Well, my inclination was I think we can do better.  I listed 3 places
+where we could make a change, but it seems like we're really only
+changing 1 thing.  I mean, after all, it's really only one hand that
+we're dealing with.  I think we can do better by isolating that change,
+and in general, that's what I want to try to do.  I want to be able
+to say that the amount of change should be proportional to the amount
+of change in the conceptualization, and here there's only 1 change in
+the conceptualization of what it means to be a straight with a low ace.
+We should be able to confine that change to 1 place in our program rather
+than 3 places.
+
+22. What to change?
+
+So what can we change?  Do we have to change the function poker?
+Do we have to change the function hand rank?  Do we have to change the
+function card ranks?  Or the function straight?  Now, I said I wanted
+to get it down to changing 1 function, but that might not be possible,
+so select all the functions that you think are going to need changes in
+order to accommodate that ace-low straight.
+
+And my answer is that only card ranks needs to change, and let's see
+what we have to do to make that work.
+
+23. Ace low straight 
+
+So here's the function card_ranks.  It takes a hand, pulls out the ranking
+for each hand, makes that into a number, sorts them so that the highest
+numbers are first, and returns that, and now I'm claiming that we can
+make 1 change to card_ranks so that it will handle the case of an ace-low
+straight and come up with the right representation for that in terms
+of ranks that will allow the rest of the program to function properly.
+Can you come up with that change?
+
+    # -----------
+    # User Instructions
+    # 
+    # Modify the card_ranks(hand) function so that a 
+    # straight with a low ace (A, 2, 3, 4, 5) will be
+    # properly identified as a straight by the 
+    # straight() function.
+
+    def card_ranks(hand):
+        "Return a list of the ranks, sorted with higher first."
+        ranks = ['--23456789TJQKA'.index(r) for r, s in hand]
+        ranks.sort(reverse = True)
+        if ranks == [14, 5, 4, 3, 2]:
+            ranks = [5, 4, 3, 2, 1]
+        return ranks
+
+    def straight(ranks):
+        "Return True if the ordered ranks form a 5-card straight."
+        return (max(ranks)-min(ranks) == 4) and len(set(ranks)) == 5
+
+    def test():
+        "Test cases for the functions in poker program."
+        sf = "6C 7C 8C 9C TC".split() # Straight Flush
+        fk = "9D 9H 9S 9C 7D".split() # Four of a Kind
+        fh = "TD TC TH 7C 7D".split() # Full House
+        al = "AC 2D 4H 3D 5S".split() # Ace-Low Straight
+        assert straight(card_ranks(al)) == True 
+        return 'tests pass'
+
+
+Well, here's what I came up with.  Instead of returning the ranks
+directly, what I want to do is say under 1 condition, if the ranks is
+equal to this ace-high or ace-low straight, rather, then I want to fix it.
+Otherwise I want to leave it the same.  If the ranks is equal to this
+ace low--and we'll fill in that later-- if that's the case, then what
+I want to return is a fix, which is 5, 4, 3, 2, 1.  This is the only
+time when I'm returning a 1 as a value.  Up here we had 2 and above.
+There was no 1 that you could return.  But now an ace, instead of being
+14, we're going to count the ace as a 1, and we're going to do that only
+in the case when the ranks that we had so far was an ace, 2, 3, 4, 5,
+which according to the sorting would have come out as 14, 5, 4, 3, 2.
+And I got the syntax backwards here when I did the insertion, so what I
+want to say is return 5, 4, 3, 2, 1, which would be the correct ordering
+for where we want to put an ace if we had ace, 2, 3, 4, 5, as our hand.
+And for any other hand, just return the ranks as is.  And my claim is
+that this will make everything work because now we've taken this one
+hand that was problematic, and we corrected it by making an ace be a 1
+instead of a 14, and now all the other comparisons of ranks will work
+out properly.  This will, in fact, be a straight because 5 - 1 is 4,
+and there's 5 different cards.  And the high value in here will, in fact,
+be a 5 and not the ace.
+
+24. Handling ties
+
+So now we're in pretty good shape, but there's one more thing that
+bothered me in the initial specification, and that was we said that if
+there's a tie, don't worry about it, or we claim that there won't be
+any ties, but there could be.  And I would hate to have this program
+tell me I lost when I actually tied.  I wouldn't mind it telling me I
+won when I actually tied, but I don't want it to tell me that I lost.
+What if I finally got a straight flush, ace high, only to find that
+another player had exactly the same hand but in a different suit?  Well,
+if that happened in the Old West, you might expect some shots to be fired,
+but assuming there was no cheating going on, the 2 winners should split
+the pot equally.  That's the way the rules of poker work.  And the way
+our program would work is it would arbitrarily choose one of the maximums
+out of the 2 that tied.  That doesn't seem fair, so to accommodate that
+idea, what do you think we can do?  How are we going to handle ties?
+We could change the function hand_rank.  We could change the function
+poker, or we could add a new function.  And check which ones you think
+would work okay and which single one do you think would be best?
+
+    def poker(hands):
+        """Return a list of winning hands: poker([hand,...]) => [hand,...]"""
+        return max(hands, key=hand_rank)
+
+    def hand_rank(hand):
+        """Return a value indicating the ranking of a hand."""
+        ranks = card_ranks(hand)
+        if straight(ranks) and flush(hand):
+            return (8, max(ranks))
+        elif kind(4, ranks):
+            return (7, kind(4, ranks), kind(1, ranks))
+        elif kind(3, ranks) and kind(2, ranks):
+            return (6, kind(3, ranks), kind(2, ranks))
+        elif flush(hand):
+            return (5, ranks)
+        elif straight(ranks):
+            return (4, max(ranks))
+        elif kind(3, ranks):
+            return (3, kind(3, ranks), ranks)
+        elif two_pair(ranks):
+            return (2, two_pair(ranks), ranks)
+        elif kind(2, ranks):
+            return (1, kind(2, ranks), ranks)
+        else:
+            return (0, ranks)
+
+    def card_ranks(hand):
+        """Return a list of the ranks, sorted with higher first."""
+        ranks = ['--23456789TJQKA'.index(r) for r, s in hand]
+        ranks.sort(reverse = True)
+        return ranks
+
+Well, the answer is that changing hand_rank wouldn't help anything because
+it really is a tie, and hand_rank really does return the same value.
+If we both have straight flushes ace high, hand_rank should return exactly
+the same thing for both.  Just because we have different suits doesn't
+mean they should have a different hand_rank.  But we could change poker
+to return a list of everybody that tied rather than arbitrarily choose
+one of them.  Or we could invent a new function, say, we might want
+the function "poker with ties."  So either of those would be okay.
+I think the best is not to introduce this new function because once we
+have that, who would really want the poker function?  Who would want
+to say "Let's play a game of poker where we don't do ties correctly?"
+I think we really want to handle ties correctly, so I think that's the
+best approach of the 3, but either approach would do.
+
+24 Allmax
+
+Here's the function poker.  What am I going to do to change this to
+handle ties?  It seems like it might be complicated.  We didn't talk
+about ties here at all.  The max function doesn't do anything about ties.
+How are we going to handle that?  Well, here's my suggestion for how to
+handle it.  I'm just going to say we had the right idea here that we want
+to go through all the hands, and we want to compare them using hand_rank.
+But instead of returning the one maximum, let's invent a new function
+called allmax that returns a collection--it could be a set or a list--of
+all the maximums.  And now let's have you write the function allmax.
+It takes an input, which is a list or something else that you can
+iterate over, and Python uses the word "iterable" to refer to that.
+And it optionally takes a keyword argument just the way that max did.
+Max can take a key or not.  And what we want to do is return, and let's
+make a commitment and say we're going to return a list of all the items
+in the iterable that are equal to the max of the iterable.
+
+    # -----------
+    # User Instructions
+    # 
+    # Write a function, allmax(iterable, key=None), that returns
+    # a list of all items equal to the max of the iterable, 
+    # according to the function specified by key. 
+
+    def poker(hands):
+        "Return a list of winning hands: poker([hand,...]) => [hand,...]"
+        return allmax(hands, key=hand_rank)
+
+    # mine id much better if it is right
+    def allmax(iterable, key=None):
+        "Return a list of all items equal to the max of the iterable."
+        # Your code here.
+        m = max(iterable, key=key)
+        k = key(m)
+        # k = key(max(iterable, key=key)
+        return [it for it in iterable if key(it) == k]
+
+    def hand_rank(hand):
+        "Return a value indicating the ranking of a hand."
+        ranks = card_ranks(hand) 
+        if straight(ranks) and flush(hand):
+            return (8, max(ranks))
+        elif kind(4, ranks):
+            return (7, kind(4, ranks), kind(1, ranks))
+        elif kind(3, ranks) and kind(2, ranks):
+            return (6, kind(3, ranks), kind(2, ranks))
+        elif flush(hand):
+            return (5, ranks)
+        elif straight(ranks):
+            return (4, max(ranks))
+        elif kind(3, ranks):
+            return (3, kind(3, ranks), ranks)
+        elif two_pair(ranks):
+            return (2, two_pair(ranks), ranks)
+        elif kind(2, ranks):
+            return (1, kind(2, ranks), ranks)
+        else:
+            return (0, ranks)
+
+    def card_ranks(hand):
+        "Return a list of the ranks, sorted with higher first."
+        ranks = ['--23456789TJQKA'.index(r) for r, s in hand]
+        ranks.sort(reverse = True)
+        return [5, 4, 3, 2, 1] if (ranks == [14, 5, 4, 3, 2]) else ranks
+
+    def flush(hand):
+        "Return True if all the cards have the same suit."
+        suits = [s for r,s in hand]
+        return len(set(suits)) == 1
+
+    def straight(ranks):
+        "Return True if the ordered ranks form a 5-card straight."
+        return (max(ranks)-min(ranks) == 4) and len(set(ranks)) == 5
+
+    def kind(n, ranks):
+        """Return the first rank that this hand has exactly n-of-a-kind of.
+        Return None if there is no n-of-a-kind in the hand."""
+        for r in ranks:
+            if ranks.count(r) == n: return r
+        return None
+
+    def two_pair(ranks):
+        "If there are two pair here, return the two ranks of the two pairs, else None."
+        pair = kind(2, ranks)
+        lowpair = kind(2, list(reversed(ranks)))
+        if pair and lowpair != pair:
+            return (pair, lowpair)
+        else:
+            return None
+
+    def test():
+        "Test cases for the functions in poker program."
+        sf1 = "6C 7C 8C 9C TC".split() # Straight Flush
+        sf2 = "6D 7D 8D 9D TD".split() # Straight Flush
+        fk = "9D 9H 9S 9C 7D".split() # Four of a Kind
+        fh = "TD TC TH 7C 7D".split() # Full 
+        print(poker([sf1, sf2, fk, fh]))
+        # assert poker([sf1, sf2, fk, fh]) == [sf1, sf2] 
+        return 'tests pass'
+        
+
+    print(test())
+
+Here's what I'm going to do.  I'm going to start out by keeping
+track of the results in a list, which is initially the empty list.
+I'm keeping track of the max value.  Initially we don't have any.
+Now, the key function, I'm either going to use the key function you
+provided me, or if you didn't, I'm going to use the function that
+just maps an argument to itself, and that's for this notation here.
+Lambda x maps to x means the function that maps the function to itself.
+And then I'm going to go through the iterable.  For each x, I come up
+with an x value, which I get by applying the key, and if the x value is
+greater than the max value so far, or if I don't have a result yet at all,
+and that would be the case if I'm at the first element of the iterable,
+then I want to create the result to be this list of the single item x,
+the value of the first one that I've looked at, and I want to set the max
+value to be equal to that x value.  If it's a tie, then I just want to
+append x onto the list of results that I've been building up all along.
+And then at the end, I want to return the result.  Now, of course, I
+should write tests for this as well just as I always did, and now that I
+have allmax and I have my new version of poker, I've also got to write a
+new documentation string here.  I've written a new documentation string
+for poker to say that it's returning a list of the winning hands rather
+than a single winning hand.  I have the definition terms of allmax.
+I should write more tests for allmax.  I should go back and change the
+tests for poker so that instead of returning a single hand, they return a
+list of the single hand for the tests I have so far.  And then I should
+also add some more tests where there are some ties and make sure that
+it handles that properly.  Once I've done that, it looks like I'm done.
+
+26. Deal
+
+Okay, time for a quiz, and in this quiz I'm going to ask you to write a
+function, and what I'm going to ask you to do is to define the function
+called deal, which will deal out some hands so that we can actually play
+some poker.  And you should give this deal function the number of hands
+that you want dealt, the number of players, and we'll optionally allow
+you to define the number of cards in each hand.  For regular poker that
+will be 5, but there's other games where you deal out 7 or other numbers
+of cards.  We want to allow for that too to make the deal function a
+little bit more general.  Your task is to define the function with that
+signature that would return a list of numhands different poker hands.
+Each one has n cards, and I'll give you a hint that you should look at
+the Python module called "random" and look up to see if there's something
+there that can help you shuffle the cards, so what deal will do is take
+a deck, shuffle it, and then deal out those hands and return the value
+of those hands.
+
+    # -----------
+    # User Instructions
+    # 
+    # Write a function, deal(numhands, n=5, deck), that 
+    # deals numhands hands with n cards each.
+    #
+
+    import random # this will be a useful library for shuffling
+
+    # This builds a deck of 52 cards. If you are unfamiliar
+    # with this notation, check out Andy's supplemental video
+    # on list comprehensions (you can find the link in the 
+    # Instructor Comments box below).
+
+    mydeck = [r+s for r in '23456789TJQKA' for s in 'SHDC'] 
+
+    def deal(numhands, n=5, deck=mydeck):
+        random.shuffle(deck)
+        rst = []
+        for i in range(0, numhands*n, n):
+            rst.append(deck[i:i+n])
+        return rst
+        # return [deck[n*i:n*(i+i)] for i in range(numhands)] 
+        
+    print(deal(5))
+
+Okay, here's my solution.  I define deal. It takes the number of hands
+and the number of cards in each hand.  And then I've also added in an
+optional parameter to make the function a little bit more general.
+Here I built up a normal poker deck with the 13 different ranks and
+4 different suits.  I have a list comprehension that goes over both of
+them and makes a 52-card deck.  But I provide that as a parameter because
+you might want to deal different types of decks.  In other games like
+pinochle, you have a different number of cards.  I just want to make deal
+a little bit more general, so I provide that as an optional parameter.
+Then I randomly shuffle the deck, and if you looked up in the random
+module, you see there is a function called shuffle.  That's the one
+you want.  And then I go through, and for the number of hands I take
+a slice out of the deck which has been shuffled and accumulate that
+into the result list.  Now, let's look a little bit more carefully
+at exactly what this expression here means, pulling out this slice.
+I've got a deck of cards which have been shuffled, so they're not in
+any particular order.  Say the 3 of clubs is first, and then the 7 of
+spades, and so on.  And now I want to pull out this slice out of the
+deck, which is defined as the deck starting at n x i and going up to
+n x (i + 1).  And we'll assume for now that n = 5.  When i = 0, then
+this will go from 0 to 5.  And we'll pull out the first 5 cards, 1,
+2, 3, 4, 5.  That slice will be the first element that we'll pull out.
+Now when i is equal to 1, we're dealing to the second player, and 5 x 1
+is 5, 5 x 1 + 1 is 10, and we'll pull out the next 5 cards.  1, 2, 3,
+4, 5, and so on.  We'll keep on going until we get numhands different
+cards and return them in a list.  Now let's just make sure this works.
+Let's print, and let's just deal out 2 hands.  And there we see we get
+2 hands back.  There are 2 total hands, and each of them has 5 cards.
+If we wanted to, we could deal different numbers of cards, so here we
+deal 2 hands, and they each have 7 cards.
+
+27. Hands frequences
+
+Royal flush 1	4	0.000154%	0.000154%	649,739 : 1	
+
+Straight flush (excluding royal flush) 9	36	0.00139%	0.0015%	72,192 1/3 : 1	
+
+Four of a kind 156	624	0.02401%	0.0256%	4,165 : 1	
+
+Full house 156	3,744	0.1441%	0.17%	693.17 : 1	
+
+Flush (excluding royal flush and straight flush) 1,277	5,108	0.1965%	0.367%	508.8 : 1	
+
+Straight (excluding royal flush and straight flush) 10	10,200	0.3925%	0.76%	253.8 : 1	
+
+Three of a kind 858	54,912	2.1128%	2.87%	46.33 : 1	
+
+Two pair 858	123,552	4.7539%	7.62%	20.0 : 1	
+
+One pair 2,860	1,098,240	42.2569%	49.9%	1.366 : 1	
+
+No pair / High card 1,277	1,302,540	50.1177%	100%	0.995 : 1	
+
+Total	7,462	2,598,960	100%	---	0 : 1	
+
+Now, I said that Wikipedia has a very nice page that mentions all the
+types of hands, and it also gives the percentages for each hand.  That is,
+out of all the possible poker hands, what percentage are a straight
+flush, four of a kind, full house, and so on, so here's the percentages.
+We see that about half the hands don't have anything.  They're just the
+high card with no pairs or anything else.  And then 42% are pairs, and
+then less for each of those.  And we see the percentages align with the
+actual poker values.  That is, the most rare hand, the straight flush,
+is the highest ranking.  The next most rare hand, four of a kind, is
+the next highest ranking, and the most common is the least highest,
+so that makes sense.  Poker is a sensible game from the point of view
+of probability.  Now, one thing we can do is see if we can duplicate
+this type of table.  That is, can we test our routines and make sure
+we've got it right in that we identify straight flushes, high cards,
+and everything else the correct number of times?  What I'm going to do
+is come up with a program that randomly generates decks or deals from
+the deck and then checks to see what kind it is and checks to see if we
+can reproduce this probability table.  We're going to look at random deal
+percentages, and first we're going to have a quiz.  Say we want to deal
+out a random number of hands and then count how many of each type we
+have and then come up with that table like we just saw from Wikipedia.
+And the question is about how many hands should we deal out to get a
+good estimate of the probabilities?  That is, we're not going to get
+the exact estimate, but we want to get some estimates that are close to
+the right probabilities, and the more we sample, the closer we'll get.
+Should we look at about 52 hands, about 50,000 hands, 700,000 hands,
+or about 52 factorial hands?  And then I also want you to answer why,
+so one per card, or do we need about 1,000 per card so that the random
+variations are evened out?  Or do we need about 10 for least common
+hand, least common ranking?  Or do we need one for each of the possible
+permutations of everything that came out of the deck?
+
+The answer is one per card wouldn't be enough, and in any case, the
+number of cards is really irrelevant.  What's important is the number
+of possible hands and the number of possible results we get for each
+type of hand, the rankings we get for each.  One per card doesn't make
+sense. 1,000 per card doesn't really help that much.  Now we're talking.
+So here we say at least expect to get 10 possible results for the least
+common rank, so least common is the straight flush, and if we said if
+we expect to get 10 straight flushes, then probably we're not going
+to get exactly 10, but it's not going to be off by that much.  If we
+expected only to get one straight flush, then maybe half the time we'd
+get zero, and half the time we'd get 2, and that would be off by a lot.
+That wouldn't be very good, but 10 seems about right.  At least we're
+in the right ballpark.  If that's the right answer here, then what does
+that translate over here?  Well, we can just look up the probability.
+We had that on the previous page.  Look up the probability.  It's about 1
+in 60,000 or 66,000, and so if we have a little bit more than 10 of each,
+then that comes up to 700,000, and that's a lot less than 52 factorial,
+which is the total number of permutations of the hands.  Actually,
+permutations isn't that important.  A better number would be the total
+number of combinations.  But even the total number of combinations is
+bigger than 700,000, so we're probably okay going here.  And here's the
+code to calculate the hand percentages.  
+
+    "Sample n random hands and print a table of percentage for each type of hand."
+
+    counts = [0]*9
+    for i in range(n/10):
+        for hand in deal(10):
+            ranking = hand_rank(hand)[0]
+            counts[ranking] += 100
+    for i in reversed(range(9)):
+        print("%14s: %6.3f %%" % (hand_names[i], 100.*counts[i]/n)
+
+
+I give a default value for n,
+the number of deals that we're going to do, the default of 700,000,
+but you can put in as many as you want.  And I should say don't try
+to run this function here with 700,000 as the input because it will
+take too long.  It should take 20 or 30 seconds, and running on our
+servers, we don't let you run that long, so if you want to run it here,
+put in a smaller value for n, say 1,000 or so, or if you want to run
+it on your own home machine, you're welcome to go ahead and do that.
+We make up a vector of counts which starts with no count for each of the
+9 possibilities, and then we go through the deals, and what I'm going
+to do is deal 10 hands and over 10 times, and for each of those hands,
+I compute the ranking and then increment the count for the ranking,
+and then I just print out the results.  When I hit Run, here's what
+the results look like.  And if I want to compare them to what we got
+from Wikipedia, I can go ahead and do that.  Here you can see we have
+2 columns.  These are the results as computed by our random sampling,
+and these are the results as computed by exact math as shown in Wikipedia,
+and you can see they're pretty close in all cases.
+
+28. Dimensions of programming
+
+In the real world, problems tend not to solve just one specific puzzle,
+but they exist in an environment.  They occupy a niche in an environment
+that evolves over time, and we can plot the program's evolution through
+a multidimensional space, and we can think of the different axes
+along this space, and one of the most important axes is correctness.
+Does the program do the right thing?  Another axis is efficiency.
+Does it do it fast enough?  Another axis is features.  What exactly does
+it do?  And another one is elegance, and I'm using the word elegance
+here coming from Richard O'Keefe, a programmer who said "Elegance
+is not optional."  And elegance encompasses a number of attributes,
+or as they're sometimes called, "ity."  That is, things that end in
+i-t-y like clarity, simplicity, and generality are all part of elegance.
+We can think of our program as occupying a point in this multidimensional
+space, and we'd really like it to be over here on the right where the
+correctness is high, although correctness doesn't have to be 100%.
+We all use programs that crash occasionally, and the programs are still
+useful to us.  And then over time, the program evolves and moves in some
+of these directions.  If the program is too slow, then we have to move
+it up along the efficiency direction, so we have to re-architect it and
+move it up to make it faster.  Over time, we want to add more features
+to our program, so say for a poker program we want to deal with wild
+cards, or we want to deal with having to deal with ties, and so we move
+out along the feature dimension and move that program to a new space.
+And then sometimes we think about moving the program to a new point in
+the space of elegance, so moving along the elegance dimension without
+increasing the correctness or features or efficiency.  And in some sense
+you might think "Well, that's not really doing anything."  "Changing the
+elegance isn't gaining you any of these features."  But what it is gaining
+you is nothing right now, but it's gaining you something for the future.
+A program that is more elegant is easier to maintain, easier to change,
+and so what you're doing is you're buying time in the future by making
+the program easier to maintain today.  Now, when I think of a point
+in this multidimensional space, here we have correctness, and we're
+up against the right edge but maybe not quite all the way to the right
+edge, and similarly with all these other features.  Now, Voltaire was
+not a programmer, but he gave some very good advice to programmers and
+engineers.  He said, "The best is the enemy of the good," and so what
+Voltaire meant by this is if you're striving for perfection, then you
+may waste too much time.  You may make a bad engineering tradeoff to say
+"I'm going to have to get to 100% correctness, and I'm going to spend
+so much time doing that when I could have been doing something else."
+"I could have been adding more features or adding other attributes to
+the program."  So you have to learn to be a good engineer and make good
+tradeoffs.  For any change you make in this multidimensional space, any
+improvement you make in any of the dimensions, there's a benefit to that.
+You make the program more correct or more featureful or more efficient.
+But there's also a cost. It takes you time to do that.  And you have
+to learn to make the right tradeoffs and say "What do I need most?"
+"Which direction do I need to move, or am I done?"  "Do I not have to
+move anymore?"
+
+29. Refactoring
+
+Now, for the moment I want to get back to this other idea of moving
+along the elegance direction without changing the other dimensions,
+and that's often called "refactoring."  That is, we take a program, and
+we change it around not that it does something different but that it's
+clearer and easier to maintain.  Now, here's a line from my hand_rank
+program that bothers me a little bit, and what bothers me here is I'm
+repeating myself, so I'm asking do we have 3 of a kind in the ranks,
+and do we have 2 of a kind in the ranks?  Okay, if we do, that's a
+full house, and then what are we going to return?  6 is the marker for
+a full house, and then the 3 of a kind and the 2 of a kind.  But I'm
+repeating myself, and so that violates what's known as the "Don't repeat
+yourself" principle or sometimes called "DRY."  I thought to myself
+is there a different way to do this?  Can I refactor my routine so
+that I'm not repeating myself, so that I only have to say this once?
+And in doing that, I came up with a different representation for a
+hand, for the ranks of a hand.  
+
+Consider this hand.  We have a 7,
+a 10, a 7, a 9, and another 7.  Now, in the representation we have so
+far--and note I'm leaving out the suits here, they don't matter--in the
+representation we have so far, we would sort these in order.  We'd have
+the 10 and the 9 and the three 7s, and then we'd go through and we'd
+say is there 3 of a kind, is there 4 of a kind, is there 2 of a kind,
+and so on.  But I want to come up now with a representation that takes
+into account everything we need to know about this hand, and I can do
+that using this function that I'll call "group."  We group this hand,
+and group is going to return 2 values.  First it's going to return the
+counts for each of the different kinds of card ranks, and so here we
+have three 7s and one 10 and one 9.  And those counts are going to be
+sorted biggest first.  And then the second value that groups is going to
+return is the card ranks for each of these, and so what did we have 3 of?
+We had three 7s. And what do we have 1 of?  Well, 10s and 9s, and we're
+going to put those in order of biggest first.  This representation of
+taking this hand and turning it into a counts and a list of ranks is in
+some ways a better representation of exactly how a poker hand counts.
+
+    def hand_rank(hand):
+        "Return a value indicating the ranking of a hand."
+        # counts is the count of each rank; ranks lists corresponding ranks
+        groups = group(['--23456789TJQKA'.index(r) for r,s in hand])
+        counts, ranks = unzip(groups)
+        if ranks == (14, 5, 4, 3, 2):
+            ranks = (5, 4, 3, 2, 1) # straight with low Ace
+        straight = len(ranks) == 5 and max(ranks)-min(ranks) == 4
+        flush = len(set([s for r,s in hand])) == 1
+        return (9 if (5,) == counts else               # 5 of a kind
+                8 if straight and flush else           # straight flush
+                7 if (4, 1) == counts else             # 4 of a kind
+                6 if (3, 2) == counts else             # full house
+                5 if flush else                        # flush
+                4 if straight else                     # straight
+                3 if (3, 1, 1) == counts else          # 3 of a kind
+                2 if (2, 2, 1) == counts else          # 2 pair
+                1 if (2, 1, 1, 1) == counts else       # 2 of a kind
+                0), ranks
+
+
+Here's the new hand_rank function using this new representation for hands.
+We call it in the same way. We pass in a hand.  And now we create the
+groups and pull out the counts and the ranks, and then we do what we
+did before where we say we have to deal with the ace-high straight,
+and so change the ranks if we have to.  And then similarly to before,
+we check to see if we have a straight or a flush, and now we can check
+for what the results are, and here we're returning a single number,
+0 through 9, and in every case we return the ranks.  Know that what
+we're doing here is we're actually changing the signature of hand_rank.
+This version of hand_rank is going to return different results than the
+previous version of hand_rank, but that's okay because it's still going
+to work in conjunction with our evaluation in that it's going to return
+the higher value for the higher hand, even though it's returning slightly
+different values.  Why is it slightly different?  Because we're only
+returning a single number, and then we always return the set of ranks,
+and those ranks are there even when they aren't needed, so for example,
+when we have a straight, we don't really need all the cards in the ranks.
+And in the previous version of hand_rank, we only return the high card.
+Here we're returning all of them, and what we do is we go through and
+we say, "What are the counts?"  If the counts are just 5 of a kind,
+that's the highest.  Otherwise we check for straight and flush, like we
+did before.  Otherwise 4 of a kind, and the only way we can have 4 of a
+kind is if the counts are 4 and 1.  Otherwise we check for a full house,
+and the only way we can have a full house is if the counts are 3 and 2.
+Then we look for flush and straight. Those are next in order.  Then we
+look for 3 of a kind.  The only way to have 3 of a kind is 3, 1, 1.
+2 pairs has to be 2, 2, 1.  One pair has to be 2, 1, 1, 1.  And then
+high card would be 1, 1, 1, 1, 1, but we don't have to explicitly check
+for that.  We just have 0 as the final value.  This is simpler. We're
+not repeating ourselves.  We have a nice representation here.  
+
+Also,
+one thing that I really like about this representation is it showed me
+a new fact about poker hands that I had never realized before, and that
+if we look at these values, (5,) (4, 1) (3, 2) (3, 1, 1) (2, 2, 1) (2,
+1, 1, 1) and then here--I haven't written it but it would be 1, 1, 1,
+1, 1-- these are all the partitions of the number 5, so in mathematics,
+a partition of an integer is the set of numbers that add up to that
+integer.  And for the number 5, that partitions into 7 possible ways, and
+it turns out that poker recognizes all 7 of those as a different thing.
+Poker has a name for all the partitions, and the even more amazing thing
+is look, they're in lexicographic order.  If we sort the 7 partitions,
+they're in exactly the same order as the poker hands.  5 comes first,
+that's the highest.  4, 1 comes next. That's the next highest, and
+so on.  I never knew that before about the mapping between poker hands
+and partitions, but this representation of hand rank makes it clear.
+
+30. Summary
+
+    def group(items):
+        "Return a list of [(count, x)...], highest count first, then highest x first."
+        groups = [(items.count(item), item) for item in set(items)]
+        return sorted(groups, reverse=True)
+
+    def unzip(pairs): return zip(*pairs)
+
+Now let's scroll down and look at the group function.  What group does is
+it takes a list of items and then returns a list of counts of items and
+the item itself.  It just goes through the set of items and returns pairs
+of the count and the set and then sorts them in reverse order so that
+the highest comes first.  And now this returns a list of pairs, and we'd
+like to turn that into a pair of lists, and the unzip function does that.
+It's a little bit tricky.  You have to look up the zip function and apply
+it to the destructured list of the pairs, but rest assured that that just
+pulls out, converts a list of pairs into a pair of lists, and we call
+that up here in order to get the right answer.  Now, I'm always thinking
+about refactoring.  I'm also always thinking of when are you done, and
+when is it time not to refactor anymore?  But I was having so much fun
+with this, I just wanted to try one more possibility, and that's to say
+rather than have a long case statement of the different results, can we
+just have them in a look-up table? (* Change ifs to mapping - весьма
+сомнительно *) 
+
+    def hand_rank(hand):
+        "Return a value indicating the ranking of a hand."
+        # counts is the count of each rank; ranks lists corresponding ranks
+        # E.g. '7 T 7 9 7' => counts = (3, 1, 1); ranks = (7, 10, 9)
+        groups = group(['--23456789TJQKA'.index(r) for r,s in hand])
+        counts, ranks = unzip(groups)
+        if ranks == (14, 5, 4, 3, 2):
+            ranks = (5, 4, 3, 2, 1) # straight with low Ace
+        straight = len(ranks) == 5 and max(ranks)-min(ranks) == 4
+        flush = len(set([s for r,s in hand])) == 1
+        return max(count_rankings[counts], 4*straight + 5*flush), ranks
+
+    count_rankings = {(5,):10, (4,1):7, (3,2):6, (3,1,1):3, (2,2,1):2, 
+                            (2,1,1,1):1, (1,1,1,1,1):0}
+
+And so what I did is I took all 7 of the partitions of the numbers of the
+number 5 and put them into a table called "count_rankings" and then had the
+corresponding poker ranking, 0 for a high card, 1 for a pair, 2 for two pair,
+and so on.  And now instead of having a statement here that's a long case
+statement for all of the 9 possibilities, I can just say that the result is
+the maximum of taking the counts, looking them up in this table, and that will
+give you a value for anything having to do with pairs or 3 or 4 of a kind.
+And take the maximum of that, and this expression here, which says 4 times
+straight plus 5 times flush.  Now, that might seem a little confusing, but
+what that's doing is it's using automatic conversion of booleans into integers
+and saying if straight is true, that corresponds to 1, and if false, that
+corresponds to 0.  So if straight alone is true, that will give you a 4, and
+that's the right ranking for straight.  If 5 alone is true, that will give you
+a 5, and that's the right ranking for flush.  And if straight and flush are
+true, that will give you a 9.  And what we had to do here, in the previous
+results straight flush was supposed to be 8, but it's okay if it's 9.  All we
+have to do is take 5 of a kind and bump that up to 10, and now we get the
+right rankings by taking the maximum of that.  We still have to return the
+ranks to break the ties, but now in 1 line we did what took 9 lines before,
+and you can decide is this what you like?  It's nice and concise.  Or do you
+like the previous approach because it was more explicit?  And that's a
+question of taste. It's up to you which one you prefer.  
+
+Now let's look at our lessons learned.  We always start by understanding the
+problem.  Look at the specification. See if it makes sense.  If it doesn't
+make sense, talk to people.  Try to figure it out. Consider different ways of
+trying to make sense of it.  Then define the pieces of the problem.  For our
+problem we had cards and hands and ranks and suits and so on.  Figure out
+everything there is to represent in the problem.  As much as you can, try to
+reuse the pieces that you have.  We used the max function.  We used the random
+shuffle function.  Those were sort of standard pieces that we already knew
+about.  Make sure you write tests.  You don't know what you've done.  You
+don't know what your program does unless you can specify it both in terms of
+the pieces that you're defining and in terms of the test that tells you what
+is it that this program does?  And then explore the design space.  We have
+many dimensions for the design space.  We have to deal with correctness, with
+efficiency, with elegance, and with features.  Decide where in the design
+space you want to be.  Keep moving in the right direction, and use good taste
+to know when to stop.  I hope we've learned something from this.  Now let's
+take a look at some homework problems to really reinforce these lessons
+learned.
+
