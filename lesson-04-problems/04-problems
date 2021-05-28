@@ -1,0 +1,330 @@
+1. Seven card stud
+
+This homework assignment has to do with games that have more than 5 cards.
+So in games like 7-Card Stud or Texas Hold 'em, players have more than 5 cards.
+Sometimes some of those cards are in common--
+that is, all players share some of the cards. But that doesn't matter.
+What you're asked to write in this program is this function best_hand,
+which takes a hand with 7 cards in it and returns the best 5 card hand.
+So in other words, each player out of their 7 cards has to come up with
+the best hand that they can make according to the hand_rank.
+What I want you to do is write your code for the function best_hand
+to return a 5 card hand that's the highest ranked.
+And here are some tests.
+I'll give you a hint, which is a lot of the functionality can be found
+in the preexisting Python modules.
+One thing that's interesting to look at is the itertools module.
+
+    # CS 212, hw1-1: 7-card stud
+    #
+    # -----------------
+    # User Instructions
+    #
+    # Write a function best_hand(hand) that takes a seven
+    # card hand as input and returns the best possible 5
+    # card hand. The itertools library has some functions
+    # that may help you solve this problem.
+    #
+    # -----------------
+    # Grading Notes
+    # 
+    # Muliple correct answers will be accepted in cases 
+    # where the best hand is ambiguous (for example, if 
+    # you have 4 kings and 3 queens, there are three best
+    # hands: 4 kings along with any of the three queens).
+
+    import itertools
+
+    def best_hand(hand):
+        "From a 7-card hand, return the best 5 card hand."
+        return max(itertools.combinations(hand, 5), key=hand_rank)
+        # Your code here
+        
+        # Norvig:
+        return max(itertools.combinations(hand, 5), key=hand_rank)
+
+    # ------------------
+    # Provided Functions
+    # 
+    # You may want to use some of the functions which
+    # you have already defined in the unit to write 
+    # your best_hand function.
+
+    def hand_rank(hand):
+        "Return a value indicating the ranking of a hand."
+        ranks = card_ranks(hand) 
+        if straight(ranks) and flush(hand):
+            return (8, max(ranks))
+        elif kind(4, ranks):
+            return (7, kind(4, ranks), kind(1, ranks))
+        elif kind(3, ranks) and kind(2, ranks):
+            return (6, kind(3, ranks), kind(2, ranks))
+        elif flush(hand):
+            return (5, ranks)
+        elif straight(ranks):
+            return (4, max(ranks))
+        elif kind(3, ranks):
+            return (3, kind(3, ranks), ranks)
+        elif two_pair(ranks):
+            return (2, two_pair(ranks), ranks)
+        elif kind(2, ranks):
+            return (1, kind(2, ranks), ranks)
+        else:
+            return (0, ranks)
+        
+    def card_ranks(hand):
+        "Return a list of the ranks, sorted with higher first."
+        ranks = ['--23456789TJQKA'.index(r) for r, s in hand]
+        ranks.sort(reverse = True)
+        return [5, 4, 3, 2, 1] if (ranks == [14, 5, 4, 3, 2]) else ranks
+
+    def flush(hand):
+        "Return True if all the cards have the same suit."
+        suits = [s for r,s in hand]
+        return len(set(suits)) == 1
+
+    def straight(ranks):
+        """Return True if the ordered 
+        ranks form a 5-card straight."""
+        return (max(ranks)-min(ranks) == 4) and len(set(ranks)) == 5
+
+    def kind(n, ranks):
+        """Return the first rank that this hand has 
+        exactly n-of-a-kind of. Return None if there 
+        is no n-of-a-kind in the hand."""
+        for r in ranks:
+            if ranks.count(r) == n: return r
+        return None
+
+    def two_pair(ranks):
+        """If there are two pair here, return the two 
+        ranks of the two pairs, else None."""
+        pair = kind(2, ranks)
+        lowpair = kind(2, list(reversed(ranks)))
+        if pair and lowpair != pair:
+            return (pair, lowpair)
+        else:
+            return None 
+        
+    def test_best_hand():
+        assert (sorted(best_hand("6C 7C 8C 9C TC 5C JS".split()))
+                == ['6C', '7C', '8C', '9C', 'TC'])
+        assert (sorted(best_hand("TD TC TH 7C 7D 8C 8S".split()))
+                == ['8C', '8S', 'TC', 'TD', 'TH'])
+        assert (sorted(best_hand("JD TC TH 7C 7D 7S 7H".split()))
+                == ['7C', '7D', '7H', '7S', 'JD'])
+        return 'test_best_hand passes'
+
+    print test_best_hand()
+
+And here is the answer. Look. It's only 1 line of code. Isn't that great?
+What we did is we took the combinations function from itertools,
+and that takes the combinations of a list taken n at a time.
+So we go through the hand--and here we didn't even use the fact that the hand is 7 cards,
+so it could have been 8 or 9 cards or whatever--
+and we generated all the combinations up from them 5 at a time
+and then we just took the maximum of that according to the hand_rank.
+And that function does exactly the right thing and passes all the tests.
+
+2. Jockers Wild
+
+There's an old saying that there's a joker in every deck.
+In this exercise we're going to allow for jokers.
+In fact, we're going to have 2 kinds of jokers.
+There's going to be a black joker and a red joker.
+The idea is that if you have a joker as one of the cards in your hand
+you can replace it with any other card of the same color.
+So if you get the black joker, you can replace it with any spade or club of any rank,
+and the red joker, you can replace it with any heart or diamond of any rank.
+And what you're asked to do is write a function, best<u>wild</u>hand(hand),
+that tries all possibilities for jokers and comes up with the best 5-card selection.
+Like before, hand might be more than 5 cards--it could be 7 cards--
+and you still have to come up with the best 5-card answer that substitutes in
+one of the appropriate cards for any jokers that exist in the hand.
+Here are some tests.
+This test says here's a hand where we're doing pretty good.
+We already have a straight--6, 7, 8, 9, T--but we also have a wild card,
+and we can use that wild card, that joker, and replace it with a jack rather than a 10,
+and now we get a slightly higher straight.
+We have a straight with a jack high rather than a 10 high.
+Here's an example where we have two 10s but we have 2 wild cards,
+so we can add in 10s for both of them, and we end up with four 10s, four of a kind.
+And here's an example where we show that even if there aren't any jokers
+we still come up with the right answer.
+And I should say that the hint still holds--that itertools is still your friend.
+
+# CS 212, hw1-2: Jokers Wild
+#
+# -----------------
+# User Instructions
+#
+# Write a function best_wild_hand(hand) that takes as
+# input a 7-card hand and returns the best 5 card hand.
+# In this problem, it is possible for a hand to include
+# jokers. Jokers will be treated as 'wild cards' which
+# can take any rank or suit of the same color. The
+# black joker, '?B', can be used as any spade or club
+# and the red joker, '?R', can be used as any heart
+# or diamond.
+#
+# The itertools library may be helpful. Feel free to
+# define multiple functions if it helps you solve the
+# problem.
+#
+# -----------------
+# Grading Notes
+#
+# Muliple correct answers will be accepted in cases
+# where the best hand is ambiguous (for example, if
+# you have 4 kings and 3 queens, there are three best
+# hands: 4 kings along with any of the three queens).
+
+import itertools
+
+
+# Norvig:
+
+allranks = '23456789TJQKA'
+redcards = [r+s for r in allranks for s in 'DH']
+blackcards = [r+s for r in allranks for s in 'SC']
+
+def best_wild_hand(hand):
+    "Try all values for jokers in all 5-card selections."
+    
+    hands = set(best_hand(h)
+                for h in itertools.prodact(*map(replacement. hand)))
+    return max(hands, key=hand_rank)
+
+def replacement(card):
+    """Return a list of the possible replacement for a card.
+    There will be more than 1 only for wild cards."""
+    if card == '?B' : return blackcards
+    elif card == '?R': return redcards
+    else: return [card]
+    
+
+def test_best_wild_hand():
+    assert (sorted(best_wild_hand("6C 7C 8C 9C TC 5C ?B".split()))
+            == ['7C', '8C', '9C', 'JC', 'TC'])
+    assert (sorted(best_wild_hand("TD TC 5H 5C 7C ?R ?B".split()))
+            == ['7C', 'TC', 'TD', 'TH', 'TS'])
+    assert (sorted(best_wild_hand("JD TC TH 7C 7D 7S 7H".split()))
+            == ['7C', '7D', '7H', '7S', 'JD'])
+    return 'test_best_wild_hand passes'
+
+# ------------------
+# Provided Functions
+#
+# You may want to use some of the functions which
+# you have already defined in the unit to write
+# your best_hand function.
+
+def hand_rank(hand):
+    "Return a value indicating the ranking of a hand."
+    ranks = card_ranks(hand)
+    if straight(ranks) and flush(hand):
+        return (8, max(ranks))
+    elif kind(4, ranks):
+        return (7, kind(4, ranks), kind(1, ranks))
+    elif kind(3, ranks) and kind(2, ranks):
+        return (6, kind(3, ranks), kind(2, ranks))
+    elif flush(hand):
+        return (5, ranks)
+    elif straight(ranks):
+        return (4, max(ranks))
+    elif kind(3, ranks):
+        return (3, kind(3, ranks), ranks)
+    elif two_pair(ranks):
+        return (2, two_pair(ranks), ranks)
+    elif kind(2, ranks):
+        return (1, kind(2, ranks), ranks)
+    else:
+        return (0, ranks)
+
+def card_ranks(hand):
+    "Return a list of the ranks, sorted with higher first."
+    ranks = ['--23456789TJQKA'.index(r) for r, s in hand]
+    ranks.sort(reverse = True)
+    return [5, 4, 3, 2, 1] if (ranks == [14, 5, 4, 3, 2]) else ranks
+
+def flush(hand):
+    "Return True if all the cards have the same suit."
+    suits = [s for r,s in hand]
+    return len(set(suits)) == 1
+
+def straight(ranks):
+    """Return True if the ordered
+    ranks form a 5-card straight."""
+    return (max(ranks)-min(ranks) == 4) and len(set(ranks)) == 5
+
+def kind(n, ranks):
+    """Return the first rank that this hand has
+    exactly n-of-a-kind of. Return None if there
+    is no n-of-a-kind in the hand."""
+    for r in ranks:
+        if ranks.count(r) == n: return r
+    return None
+
+def two_pair(ranks):
+    """If there are two pair here, return the two
+    ranks of the two pairs, else None."""
+    pair = kind(2, ranks)
+    lowpair = kind(2, list(reversed(ranks)))
+    if pair and lowpair != pair:
+        return (pair, lowpair)
+    else:
+        return None
+
+
+Here's my answer. First I defined all the ranks.
+That had been a constant that we had in the program before,
+but I'm going to have to refer to it a couple times, so I called it out and gave it a name.
+Then I defined all the red cards and all the black cards.
+Those are what we're going to substitute for the various jokers.
+And then here's best<u>wild</u>hand.
+So what I did is I said let's apply this function replacement
+to each of the cards in hand. Here's what replacement does.
+Replacement takes a card and replaces or comes up with a list of possibilities for that card.
+So if the card is a black joker, then it can be replaced with all the black cards.
+If the card is a red joker, it can be replaced with all the red cards.
+Otherwise it can replace only with itself, and we'll make that a list
+because the interface here is that you give me 1 card and I give you a list
+of all the cards it can be replaced with.
+
+Now, what am I doing here? This looks a little bit tricky.
+What I'm saying is I'm calling itertools.product.
+Let me explain to you what product does.
+The product function takes any number of lists,
+or in fact they can be iterables, and here we're just going to try 2,
+so the product of ([1, 2, 3] , [100, 200].
+Product stands for cross product, so we'd have all ways of taking 1 item from this list
+and 1 item from this list.
+So that would return a list, and the pairs of items are put into tuples,
+so it would be [(1, 100), (1, 200), (2, 100), (2, 200), (3, 100), (3, 200)].
+So however many lists it's given, it picks out 1 element from each,
+puts that into a tuple, and does that for every possible combination
+of elements from a, b, and whatever else there is there.
+So what we've done here is we've called replacement on each card in the hand,
+and that gives us a list of possibilities for each of the cards.
+If the card is not a joker, that list will be 1.
+If the card is a joker, then it will be all the red cards or all the black cards.
+So now we have the product of that.
+So for all the 7 cards in the hand we've got this big product,
+and we go through and we take all the possibilities
+and then for each one of those possibilities, h, we pick out the best hand
+using the process that we did before, and that gives us a set of possible hands.
+And then we go through those hands using hand_rank.
+
+These hands are now the 5-card hands determined by best_hand,
+and we take the maximum again according to hand_rank,
+and that gives us the best out of those 5 cards.
+For both of these solutions to the homework problems
+I was able to come up with a small amount of code
+because I knew about existing routines in the standard Python library.
+If you didn't know about those routines and if you wrote a lot of lines of code
+rather than just 1 or 2, don't feel bad.
+You got the practice doing that, and I'm sure your code was good and did the right job.
+So you should feel proud that you got it working,
+but you should also learn this lesson--
+that you should try to familiarize yourself with the tools that already exist
+and use them when appropriate.
