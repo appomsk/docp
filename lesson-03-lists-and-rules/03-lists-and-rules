@@ -1,0 +1,275 @@
+01. Hello
+
+Hi. I'm Andy.
+I graduated college in 2009, and I started traveling the world, biking across the country,
+and basically living the life of a drifter.
+When I found out about Udacity, I decided this was the job for me.
+Last semester I TA'd Sebastian's class on Programming a Robotic Car,
+and this semester I'm going to be TAing Peter's class on the Design of Computer Programs.
+I'm going to be available in the forums to help you with your questions,
+I'm going to record supplementary videos when there's things that seem confusing,
+and I'll be there for you to yell at in case the grading scripts don't work,
+though I think we've got most of those bugs ironed out. See you in class.
+
+2. List comprehensions 1
+
+This lesson is on list comprehensions.
+This is something that wasn't covered in CS101 but will be used in many future classes,
+including CS212.
+List comprehensions are a powerful tool for quickly and concisely creating lists.
+For example, let's say you have a list of the Udacity TAs like this,
+and maybe we'll want to write the TA names in uppercase
+because lowercase is a little bit boring.
+One way we can do this is with a for loop like this one. And let's see how it works.
+This for loop is really doing 5 different things.
+First we create the empty list bad<u>uppercase</u>tas,
+and I've called it bad<u>uppercase</u>tas
+to emphasize that this really isn't the way we're going to want to create such a list.
+Next it generates the indices, and it does that here.
+These indices will be 0, 1, 2, 3, 4, 5 because udacity_tas is a list of length 6.
+Then we iterate over these indices.
+Next we apply the upper function, and this is a function that just takes a string
+and converts all of the characters to uppercase.
+Finally, we append to the bad<u>uppercase</u>tas list.
+And this code will be perfectly functional, but it is bad, it is ugly, and it is slow,
+which is why we have list comprehensions.
+And just to show that this code works, let's run it.
+And sure enough, we get a list of the TA names, and they are printed in uppercase.
+Using list comprehensions we could solve this problem in 1 line of code.
+And here Python recognizes that udacity_tas is an iterable.
+Iterable just means any object that can be iterated over.
+So for example, lists can be iterated over, strings can--and you'll see a lot of that
+in CS212 in the first unit--tuples--and if you don't know what those are yet, don't worry.
+These are all iterable objects, and this notation tells Python
+to iterate over all of the entries in udacity_tas, call each entry name,
+and then apply this upper function to name.
+The brackets indicate that we want to put the results into a list,
+and that's the list that we see down here:
+Peter, Andy, Sarah, Gundega, Job, Sean.
+And actually, I'd rather print each name on its own line, so let's do that like this.
+That's better.
+
+03 List comprehensions 2
+
+Now, what if our data structure was a bit more complicated
+than a list with strings as entries?
+Here we have a list where each entry is a tuple, as indicated by these parentheses.
+For now let's just think of tuples as unchangeable or immutable lists.
+Each of these tuples contains a TA name, the country where that TA lives,
+and the course which that TA is currently instructing.
+This data is interesting, but I'd rather have it presented to me as a list of sentences,
+and we can do that with list comprehensions.
+So here we've turned ta_data into a list of strings,
+and each of those strings is a sentence about a TA.
+For example, Peter lives in USA and is the TA for CS262.
+How do we do that?
+We use the same sort of list comprehension we used last time,
+but now ta_data is an iterable and its entries are tuples.
+These tuples each have 3 entries, and when we reference these names here, here, and here,
+Python understands what we're talking about.
+Now let's have a quiz.
+Using the same structure for ta_data that we had before,
+I want to construct sentences but only about the country in which each TA lives.
+For example, Peter lives in USA,
+or Gundega lives in Latvia.
+I've given you 3 options for possible list comprehensions
+that may accomplish this task--
+that given ta_data will produce the correct ta_country.
+And so which of the following list comprehensions will work?
+Check all that apply.
+
+And let's go through each of the options.
+This first option will not work.
+Since ta_data is a tuple
+containing 3 elements, we need to reference each of those 3 elements
+for Python to understand what we want.
+Here we only reference name, country;
+we don't even reference course at all,
+so Python gets confused and if you try to run this you will get an error.
+The second option looks great.
+It's readable; name, plus lives in country
+is very easy to understand.
+It references all 3 variables in ta_data.
+Looks like I forgot my closed brackets here.
+This third option will also work.
+It has 2 variable names,
+and we reference all 3 elements in the tuple,
+but I don't like this one as much as the second one.
+The reason being "x lives in y"
+doesn't remind me that I'm talking about a name and a country.
+As far as readability is concerned,
+I prefer option 2.
+And, you can see, if we try to run option 1,
+we get an error message--value error--
+too many values to unpack.
+If we run option 2 or 3 however,
+we get exactly what we want.
+
+4. List comprehensions 3
+
+Let's introduce one more feature into our list comprehensions.
+Remember ta_data and ta_facts.
+When we ran this, we got a list of strings
+which each contained a fact about a TA.
+Like: Job lives in the USA,
+and is the TA for CS387.
+Well, what if we only want facts about TAs that don't live in the USA?
+So, in this case that would be Gundega and Sarah.
+Well, since these TAs are working remotely,
+let's call it remote<u>ta</u>facts,
+and all we have to do is add a simple "if" statement.
+And now when we run this, we only get these two strings
+about Sarah and Gundega.
+The addition we made was pretty intuitive.
+This "if" statement just says: "If the country is not the USA,"
+then we're going to add an entry
+according to the rules we described earlier.
+I hope you learned a lot about list comprehensions.
+You should feel free to click the link below the video to learn even more,
+but now it's time to practice.
+
+5. List comprehensions 4
+
+    #-----------------
+    # User Instructions
+    #
+    # Use a list comprehension to identify all the TAs
+    # Who are teaching a 300 level course (which would
+    # be Gundega and Job). The string.find() function
+    # may be helpful to you.
+    #
+    # Your ta_300 variable should be a list of 2 strings:
+    # ta_300 = ['Gundega is the TA for CS373',
+    #           'Job is the TA for CS387']
+
+    ta_data = [['Peter', 'USA', 'CS262'],
+            ['Andy', 'USA', 'CS212'],
+            ['Sarah', 'England', 'CS101'],
+            ['Gundega', 'Latvia', 'CS373'],
+            ['Job', 'USA', 'CS387'],
+            ['Sean', 'USA', 'CS253']]
+
+    ta_300 = [x + ' is the TA for ' + z for x, y, z in ta_data if z.startswith("CS3")]
+
+    print(ta_300)
+
+Use list comprehensions to identify all the TAs
+who are teaching a 300-level course.
+So that's any course beginning with the number 3,
+which in this case will be Gundega and Job.
+You may want to use the string.find method to help you out here.
+Your variable, ta_300, should look exactly like this.
+
+And this is how I solved the problem.
+I assigned ta_300 to name + is the TA for
++ course for name, country, course in ta_data.
+And, notice I had to use this country
+even though it didn't show up here
+and that's because each of these lists contain 3 elements
+and I need to reference all three of those elements.
+I only did this if course.find for this string CS3--
+because you'll notice all of the 300 level classes
+have CS3 in them--was not equal to negative one.
+Because, remember, find returns negative one
+when it doesn't find what you're asking for.
+And when I run this, I get exactly what I want.
+Good work.
+
+6. Rules of pocker
+
+The first unit of CS212 uses poker as a vehicle to
+teach about the design of computer programs. If you
+don’t know the rules of poker yet, don’t worry, that’s
+exactly what this video is for. Now of all you know
+about poker is what you’ve seen on TV or in a
+casino, you may think it’s pretty complicated. There
+is that intimidating green table and it’s surrounded
+by some very serious looking people and these
+people often have very silly hats or ridiculous
+sunglasses and they are saying things like, raise, or
+all-in. Now if you ever want to actually play poker,
+you are going to have to learn what all this means.
+
+There is betting, there is folding, there is calling,
+there is raising, and it can get pretty complicated.
+There is a lot of strategy involved. But for the
+purposes of this unit, we only need to know the most
+basic aspect of poker and this aspect is common to
+every single variation of poker and that’s how hands
+are arranged because at the end of the day, all of
+these different versions of poker have to do with
+making the best five card hand that you can. Now
+these different hands each have different names and
+there are nine of them. So let’s talk about what each
+of these names mean and since this class uses
+python, I’ll start my numbering at zero.
+
+The best hand and this one that you almost never
+see in poker is the straight flush and here we have a
+straight flush. The suit here is hearts, so you can
+see every single card is a heart and they are all in
+sequential order, nine, ten, jack, queen, king. If you
+ever go into a poker form online, you would see
+these cards were in as 9H, TH, JH, QH, KH and
+that’s the system we’re going to use here.
+
+The next best hand is four of a kind and here we
+have a four of a kind with four aces and a six. The
+six is usually irrelevant to this hand but we’ll talk a
+little bit about how to break ties in class. 
+
+Next best is
+the full house and a full house is just three cards of
+one rank, so here we have three tens and two of
+another, so two, twos. This hand is a full house so
+we would call it tens full of twos. 
+
+Next is the flush
+and a flush is five cards of the same suit and here
+the ranks don’t matter. You can see we have a
+three, six, jack, queen and king but they’re all of the
+suit spade. 
+
+Next we have the street and a street is
+just five cards in sequential order, five, six, seven,
+eight, nine and here the suit doesn’t matter at all.
+We have a spade, diamond, club, diamond and
+another spade. 
+
+Our next hand is the three of a kind
+and three of a kind is just three cards of the same
+rank, so these three fours are what’s relevant. The
+queen and again in some special circumstances
+where we’re playing with multiple decks, they may
+be used to break a tie and again we’ll talk about that
+in class. 
+
+Next we have two pair, for example, a pair
+of jacks and a pair of nines would be two pair. 
+
+The
+second worst hand is a pair and a pair is just two
+cards of the same rank, here we have two threes.
+The eight, five, two don’t do much to help our hand
+here. 
+
+Finally, we have nothing. So we could also call
+that high card because when two people who have
+nothing show down their hands, the one with the
+highest card wins.
+Here we have king high and this is really quite a bad
+hand. If you are ever in a casino, I wouldn’t go
+playing this and expecting win. 
+
+And that’s it; those
+are our nine hands, straight flush, four of a kind, full
+house, flush, straight, three of a kind, two pair, pair
+and nothing. Noticeably design them all in number,
+zero through eight. This is one of the numbers we’ll
+be using in our poker program to compare hands. It
+turns out, we’ll need a few other numbers to
+distinguish between for example two full houses, six
+for six is inadequate, we’ll need to add some other
+numbers in there but we’ll explain that in class and
+for now you should understand the rules of poker
+well enough to follow on.
