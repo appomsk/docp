@@ -1,0 +1,388 @@
+1. Bad Shuffle
+
+Now, by all means, you should use the library functions like random.shuffle.
+That's what they're there for.
+But I'm going to allow a little bit of a diversion here
+because the shuffle algorithm is one that's important to me personally.
+It was the first nontrivial algorithm that I came up with on my own when I was in high school
+and one of the first cases where I saw that my teacher was just completely wrong.
+
+    def shuffle1(deck):
+        "My teacher's algorithm"
+        N = len(deck)
+        swapped = [False]*N
+        while not all(swapped):
+            i, j = random.randrange(N), random.randrange(N)
+            swapped[i] = swapped[j] = True
+            swap(deck, i, j)
+
+    def swap(deck, i, j):
+        "Swap elements i and j of a collection."
+        print 'swap', i, j
+        deck[i], deck[j] = deck[j], deck[i]
+
+Here's the algorithm that my teacher was trying to describe to me.
+Of course, I went to high school in the Dark Ages before there was any Python,
+so it wasn't written in exactly this language,
+but I've translated it into Python to make sense to you.
+Here's what the algorithm does.
+It says we're going to keep track with an array of which items have been swapped so far,
+and then until they've all been swapped at least once,
+we're going to generate 2 random indices into that array and then swap them
+and record the fact that they were both swapped
+and keep going until all the items have been swapped at least once.
+
+    <Picture of deck and bool array>
+
+So it looks like this.
+Again, we have this deck of cards
+and then we have a parallel array of the same length
+which tells us whether we've been swapped or not,
+and that starts out as being all false, while this one starts out being cards.
+And then we go through and we pick out random numbers.
+So say we pick out I and J as being here and here,
+and say we have a 9 of diamonds there.
+Then we're going to just swap the 2.
+And so we cross those out.
+We now have the 7 of spades there and the 9 of diamonds there,
+and we mark the 2 spots as being swapped.
+So now this one is true and this one is true.
+Those 2 spots have been swapped, and then we keep on going
+until all the elements of swapped are all equal to true. Then we know we're done.
+So that's what my teacher was trying to sell to me that day in high school.
+
+I was sitting in the back, and I just woke up and I said,
+"That can't be right."
+I just had this visceral reaction that said, "I can see what the algorithm does,
+"and I know it swaps everything, but it just seems too inefficient."
+"It has this loop that keeps on going, and it's not a for loop, it's a while loop."
+And it just seemed to me that it was possible that this loop could go forever.
+Depending on the choice of random numbers,
+this might never terminate, and that just seemed wrong.
+It seemed like there was a much better way.
+And in my head I came up with the shuffle algorithm that we showed before.
+Knuth calls it Algorithm P for permutation.
+It just seemed like that was the simple and correct way,
+and this was just too complicated, and that really bothered me.
+I thought that an algorithm should be guaranteed to terminate.
+
+2. Shuffle runtime
+
+Part of the problem with this approach is that it's not guaranteed to terminate.
+Another part of it is that even when it does terminate,
+it's going to take a little bit longer to do so.
+And the question is, how long is it going to take?
+Assume we have N elements in our deck.
+How long is it going to take for this algorithm to run?
+Would it be roughly on the order of N swaps
+or roughly on the order of N squared swaps
+or roughly on the order of N factorial swaps?
+Which of those do you think corresponds to the time it will take on average
+to execute this algorithm?
+
+And the answer is it will take about N squared on average.
+It will be more time proportional to N squared.
+And the way you can see that is to think about how long it's going to take
+to get the very last item of this swapped array filled in.
+So say all the items are true all the way through,
+except there's 1 holdout that we haven't got yet. This one is still false.
+About how long will it take until we randomly choose a number
+so that we can make this one be true?
+And the answer is there's N of these.
+And each time we're going through and we're generating indices,
+so it's going to take about N random numbers before we get that.
+So for each of these N elements of the array
+we can expect on average to take N or less.
+For the first one it will be easy.
+The second one will be a little bit harder. The last few it will be harder still.
+But in the average case, the complexity is going to be on the order
+of N times generating a random number for each of the N elements of that array
+or order of N squared altogether.
+
+3. Good shuffle
+
+    def shuffle(deck):
+        "Knuth's Algorithm P."
+
+        N = len(deck)
+        for i in range(N-1):
+            swap(deck, i, random.rangrange(i, N))
+
+Here is the algorithm I was able to come up with.
+Knuth calls it Algorithm P.
+Other people have discovered it before him, so it's been discovered over and over again.
+The idea is you just go through the deck and make 1 swap for each of the index i.
+And what we swap it with gives an equal chance
+for any of the items that haven't been seen yet to occur in position i.
+
+    <picture of array>
+
+So again, we've got our deck and we're going through 1 at a time
+looking at each position.
+And when we get to a general position i, we're going to swap i
+with the range from i through to the end.
+So we're going to pick out for this element i any one of these elements
+and then swap them.
+Say we pick this one. Then we would swap those 2.
+And then we would move on to the next position of i.
+So the very first element we pick any element in the array,
+swap it into the first position,
+then we look at the second element and pick any element from the second on,
+swap it into that position and so on.
+And so we can see that every element in the array
+has an equal opportunity to appear at each position.
+
+So the qualities of this algorithm that I like is that it's so simple and clear.
+It just says in 1 statement.
+It makes it obvious that each location i can have any of the elements of the deck
+with equal probability.
+Now, there's one part of it, I guess, which is not the most clear,
+which is are we exactly right here?
+Here we've got N and here we've got N - 1, and that should bother you a little bit.
+Do we have this right?
+In general, ranges are tricky in Python
+because ranges go from--if we say random range from i to N, it's not going all the way up to N;
+it's only going to N - 1. And the same thing here.
+If we say from range to N - 1, actually the biggest number there is N - 2,
+but there's N - 1 of them because we include 0.
+So ranges are always a little bit tricky. We can have these off by 1 errors.
+We want to make sure that we got this right,
+and so let's have another quiz.
+
+The quiz is, for that statement for i in range (N - 1),
+what would happen if we replaced the (N - 1) with an N?
+And the options are, would that give us an index error
+that we've gone too far into the deck and we have the wrong index?
+Would it give us a value error from random range?
+Would it tell us, "You've got the wrong number in there"?
+Would it give us no error but the results would be unfair
+in that 1 permutation of the deck might be more common or more probable than another?
+Or would it give us no error and still be fair but maybe just a little bit slower?
+
+And the correct answer is that there would be no error. It would still be fair.
+Each permutation of the deck would occur with equal probability,
+but it would take N divided by N - 1 times longer--just a tiny bit longer.
+We can see that what's happening here is if you remember what our deck looked like,
+when we got to the second to last element,
+we swapped the second to last element with a random selection from the last 2,
+so that's up to N - 1.
+If we changed the range to go all the way to N, then we would do 1 more step
+where we would swap the last element with an item in the range of just the last element.
+So swapping the last element with itself--that would be the only choice--
+that wouldn't really do anything effective.
+It wouldn't hurt. It would just take a little bit longer.
+And so to avoid that redundant operation, we'd use N - 1 rather than N.
+
+4. Is it random?
+
+Now, I said that with the correct shuffle algorithm,
+the Algorithm P, every permutation of the deck has an equal probability.
+The next question is, for the teacher's algorithm
+does every permutation have an equal chance? What do you think?
+Yes, they're all the same, it just takes longer to get them;
+no, some of them will be different, have a different probability;
+or no, some will have a 0 probability,
+that there will be some permutations that it's impossible for the teacher's shuffle to generate.
+Tell me which you think.
+This is a hard question. It takes some analysis to be able to figure it out.
+You may be able to tell just by looking at the algorithm,
+or you may want to write some code to analyze what the situation is.
+
+And the answer is that every permutation has a non-zero probability,
+but they don't all have the same probability.
+And let's see how I discovered that.
+I wrote some test code that generated this output,
+and what I did is I gave it some example inputs, some example decks, that were very simple.
+First I gave it the deck consisting of 3 items--a, b, and c--
+and then I gave it the deck consisting of 2 items--a and b--
+and I had it test for both shuffle algorithms--the correct algorithm and the teacher's algorithm.
+I had it generate a few thousand decks, shuffle them,
+and then figure out how many times each of the possible outcomes come out.
+For 3 cards there's 6 possible permutations.
+Both shuffle algorithms generated all 6.
+For the correct shuffle algorithm you can see that they're all about 1/6 of the time.
+1/6 of the time would be 16.6667%, and they're all pretty close to that.
+For the teacher's shuffle algorithm, not so much.
+Notice that the combination abc only shows up 5% of the time,
+whereas some of the other combinations show up 27% of the time.
+Not very good distribution of probability at all,
+so there's something wrong with that algorithm.
+And it's even more obvious when we just give it the trivial case of a 2-card deck.
+With the correct algorithm it turns out to be exactly 50-50.
+It might have been 49.1, 50.1.
+This is just luck that it was exactly 50-50 in my simulation.
+But with the teacher's algorithm, way off.
+1/6 of the time you get ab, and 5/6 of the time you get ba.
+
+5. Testing shuffles
+
+    def test_shuffler(shuffler, deck='abcd', n=10000):
+        counts = defaultdict(int)
+        for _ in range(n):
+            input = list(deck)
+            shuffler(input)
+            counts[''.join(input)] += 1
+        e = n*1./factorial(len(deck)) ## expected count
+        ok = all((0.9 <= counts[item]/e <= 1.1)
+                    for item in counts)
+        name = shuffler.__name__
+        print('%s(%s) %s' % (name, deck, ('ok' if ok else '***BAD***'))
+        print()
+        for item, count in sorted(counts.items()):
+            print("%s:%4.1f" % (item, count*100./n), end='')
+        print()
+
+    def test_shufflers(sufflers=[shuffle, shuffle1], decks=['abc', 'ab]):
+        for deck in decks:
+            print()
+            for f in shufflers:
+                test_shuffler(f, deck)
+
+    # def factorial --> in math now
+
+Now I'm going to show you this program, test_shuffler,
+that produces the output you just saw
+to see if a shuffle program is correct, if it comes up with a balanced set of results.
+So what am I going to do?
+First I'm going to keep track of the counts of every result that comes back from the shuffler.
+I'm going to start counts off as a default dictionary.
+That means that its default value is the default value of integer, which is 0.
+So the counts all start at 0.
+And then I go from range(n), so n times,
+and by default we're going to go 10000 shuffles.
+We're going to make a list out of the deck that we get passed in.
+The deck is just a string of characters. That's the simplest thing to show.
+Then we're going to shuffle the input and then count the result.
+And result here is a list of items.
+We're going to join the list of items together back into a single string
+to make them smaller and easy to deal with,
+and then we just increment that count.
+So abcd comes in, we make a list, we make the list abcd,
+we shuffle that, maybe we get bcad, and then we increment the count for that result.
+Now, we calculate the expected count, what we expect to get,
+and that's 1 over the factorial of the number of items in the deck
+because all n factorial where n is the length of the deck items are equally probable.
+And so the expected count should be n times that.
+And then we say that the result is okay if the counts for each item--
+The ratio of the counts to the expected value should be about 1.
+And we're going to say if it's within 0.9 and 1.1 of what we expect, then that's okay.
+If any item doesn't have that, then it's not okay.
+What we passed in as shuffler is a function,
+and functions have a name attribute, so we're pulling out the name of the shuffler
+and then we're just printing out the name of the shuffler, the deck we're shuffling,
+and whether it's okay or not,
+and then we print out the individual probabilities for each of the possible results.
+
+And then I made another function, test_shufflers,
+which takes a list of shufflers and a list of possible decks
+and it applies the test to the cross product of them.
+For every shuffler we test every deck and we print the result.
+We saw that the function shuffle1 was not a good function,
+so I'm trying to fix it up, and I have 2 attempts here called shuffle2 and shuffle3.
+We can see what's going on here.
+In shuffle2 it's almost the same as shuffle1,
+except when I pick out 2 random indices to swap,
+I'm only saying that swapped of i is true,
+and I'm not saying that swapped of j is true.
+Otherwise it's the same.
+In shuffle3 I go through the deck.
+Rather than have a while loop, I just go through the deck for each of the indices
+and swap that index with something in the random range of N.
+So in other words, we swap each of the elements in the deck
+with any one of the other elements.
+
+6. Comparing Shuffles
+
+    def shuffle3(deck):
+        "A modification of my teacher's algorithm"
+        N = len(deck)
+        swapped = [False] * N
+        while not all(swapped):
+            i, j = randrange(N), randrange(N)
+            swapped[i] = True
+            swap(deck, i, j)
+
+    def shuffle3(deck):
+        "An easier modification of my teacher's algorithm"
+
+        N = len(deck)
+        for i in range(N):
+            swap(deck, i, randrange(N))
+
+
+In this quiz we're going to consider each of the shuffle routines--
+that is, the shuffle routine coming from Knuth, the Algorithm P,
+the shuffle1 that was the teacher's original shuffle,
+and the shuffle2 and 3 that we just saw.
+And for each of them I want you to tell me,
+is the runtime order N or order N squared,
+and is the result that we get back correct
+in the sense that all outcomes are equally probable?
+We already know that the shuffle routine is order N and it is correct,
+and we know that shuffle1 is order N squared and it's not correct.
+And now what I want you to tell me is for shuffle2 and 3
+what's the order of complexity, and is it correct?
+If so, hit this check button.
+
+The answer is shuffle2 is still order N squared,
+and you can see that because it's similar to shuffle1 in the way it goes through
+and checks off the elements that are swapped.
+But it is in fact correct.
+It does give a balanced result that any outcome is equally likely,
+and you can see that by running the shuffler test on it.
+Shuffle3, on the other hand, has a nice order N runtime,
+but unfortunately, it's not correct. It's biased in the results that it produces.
+So in conclusion, we should stick to the original shuffle--
+that is, not the teacher's function, not any attempts to fix it up,
+but the one I was able to come up with in class
+and the one that's in the literature of Knuth and others.
+
+7. Computing or doing
+
+Now, one more thing.
+Note that the shuffle routine--both the ones that we wrote
+and the random.shuffle from the standard Python library--return None.
+That is, they don't return a useful value; they just return nothing.
+And the idea of the shuffle routine is that they modify the input.
+So there's this eternal tension in programming between computing a result
+and doing something.
+So functions like square root and sine function and so on
+take an input and return a result.
+They don't modify the input, and they create a new value as a result.
+But functions or subroutines or methods like shuffle are different.
+They take an input and modify that input.
+They take the state of the world and do something to the state of the world
+rather than just compute a result.
+We talk of these functions that compute a result as pure functions
+and these that do something as impure,
+and I like to talk of them as subroutines rather than functions
+because they aren't functions in the mathematical sense;
+they have an effect on the world.
+
+You'll see that most of the code that I show in this class
+is of the computing type rather than the doing type.
+The main reason for this is that the computing code is easier to test.
+So if I wanted to write a test for a computing function, for a pure function,
+I can do something like assert sorted of the list ([3, 2, 1]) = [1, 2, 3].
+A single line and I'm done.
+On the other hand, if I want to test a subroutine that does something,
+that affects the state of the world, I have to first set up some state.
+So let's say input = [3, 2, 1].
+Then I have to call the subroutine or method,
+say input.sort,
+and then I have to inspect the state to see what happened.
+So I would assert that input is now equal to--oops.
+Let's make sure we have double equals signs there.
+Input is now equal to [1, 2, 3].
+In this case there's not that much difference.
+We have a library method sort and a built-in function sorted.
+With the built-in function it's a single line to test.
+With the doing subroutine it's 3 lines to test.
+But in general, as we add more state and we have functions that do rather than compute,
+it's going to be more work to set up the state, invoke the method, and then test it,
+and it's easier to do the test for pure functions.
+And that's why I prefer them when they make sense
+and stick to the doing approach only when necessary.
+When there's a lot of state that we have to deal with,
+then we go ahead and write methods or subroutines that modify the state
+rather than write pure functions.
